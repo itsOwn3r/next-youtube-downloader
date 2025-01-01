@@ -11,7 +11,8 @@ interface ResponseType {
     title: string,
     thumbnail: string,
     audio: {
-        url: string
+        url: string,
+        contentLength: string
     },
     video: {
         video360: {
@@ -98,11 +99,14 @@ const Main = () => {
     if (response) {
         return (
         <>
-            <Button className="px-8 py-6 text-xl" variant="secondary" onClick={() => setResponse(null)}>Go Back</Button>
+            <Button className="px-8 py-6 text-xl" variant="secondary" onClick={() => {
+                setResponse(null)
+                setUrl(url)
+                }}>Go Back</Button>
             <div className="min-h-[70%] flex items-center justify-center flex-col md:flex-row w-full md:w-9/12">
                 
                 <div className="w-full flex justify-center flex-col items-center">
-                    <div className="relative w-11/12 h-[35rem] rounded-xl">
+                    <div className="relative w-11/12 h-[35rem] rounded-xl shadow-shine">
                         <Image className="rounded-xl" fill src={response.thumbnail} alt={response.title} />
                     </div>
                 <h1 className="text-center text-2xl mt-5"><Link className="hover:scale-110 hover:underline underline-offset-8" href={`https://youtu.be/${response.videoId}`}>{response.title}</Link></h1>
@@ -111,10 +115,10 @@ const Main = () => {
                 <div className="flex justify-center flex-col items-center relative w-full h-full max-w-[50%] overflow-hidden">
                     <h2 className="text-2xl">Download:</h2>
                     <div className="flex flex-col gap-y-2">
-                        {response.video.video360 && <Button onClick={() => downloadVideo(response.video.video360.url)} className="p-6 text-xl">360p - {bytesToSize(Number(response.video.video360.contentLength))}</Button>}
-                        {response.video.video480 && <Button onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl">480p - {bytesToSize(Number(response.video.video480.contentLength))}</Button>}
-                        {response.video.video720 && <Button onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl">720p - {bytesToSize(Number(response.video.video720.contentLength))}</Button>}
-                        {response.video.video1080 && <Button onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl">1080p - {bytesToSize(Number(response.video.video1080.contentLength))}</Button>}
+                        {response.video.video360 && <Button onClick={() => downloadVideo(response.video.video360.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">360p - {bytesToSize(Number(response.video.video360.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video480 && <Button onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">480p - {bytesToSize(Number(response.video.video480.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video720 && <Button onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">720p - {bytesToSize(Number(response.video.video720.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video1080 && <Button onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">1080p - {bytesToSize(Number(response.video.video1080.contentLength) + Number(response.audio.contentLength))}</Button>}
                     </div>
                 </div>
                 
@@ -125,8 +129,9 @@ const Main = () => {
         return (
             <div className="min-h-[70%] flex items-center justify-center flex-col w-full">
             <Input
+                value={url}
                 disabled={isLoading}
-                className="max-w-[90%] md:max-w-[30%] p-6 text-2xl"
+                className="max-w-[90%] md:max-w-[30%] p-6 text-2xl shadow-shine"
                 placeholder="Enter Youtube URL"
                 onChange={e => setUrl(e.target.value)}
             />

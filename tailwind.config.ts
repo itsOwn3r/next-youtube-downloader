@@ -9,6 +9,10 @@ export default {
   ],
   theme: {
   	extend: {
+      boxShadow: {
+        'shine': '0px 0px 58px 20px rgba(85, 85, 85, 0.20);',
+        'bright': '0px 0px 58px 20px rgba(85, 85, 85, 0.35);'
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
