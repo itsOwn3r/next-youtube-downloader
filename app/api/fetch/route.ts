@@ -100,6 +100,15 @@ export async function POST(req: NextRequest){
     const video720p = videos.filter((video: { height: number, contentLength: string }) => video.height === 720).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
     const video1080p = videos.filter((video: { height: number, contentLength: string }) => video.height === 1080).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
 
+    let thumbnail;
 
-    return NextResponse.json({ success: true, videoId, title, audio: audioMedium[0], video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] });
+    const highQualityThumb = await fetch(`https://i.ytimg.com/vi/${videoId}/hq720.jpg`);
+
+    if (highQualityThumb.status === 404) {
+        thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+    } else {
+        thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`
+    }
+
+    return NextResponse.json({ success: true, videoId, title, thumbnail, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});
 }
