@@ -77,11 +77,13 @@ const Main = () => {
 
     const downloadVideo = async (url: string) => {
         console.log(url);
-        console.log(response?.audio.url);
+        console.log(response);
         const requestForDowload = await fetch("/api/download", {
             method: "POST",
             body: JSON.stringify({
                 url,
+                videoId: response?.videoId,
+                title: response?.title,
                 audio: response?.audio.url
             })
         })
