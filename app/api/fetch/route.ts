@@ -95,10 +95,11 @@ export async function POST(req: NextRequest){
     const videos = ytApiData.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
  
 
+    const video360p = videos.filter((video: { height: number, contentLength: string }) => video.height === 360).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
     const video480p = videos.filter((video: { height: number, contentLength: string }) => video.height === 480).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
     const video720p = videos.filter((video: { height: number, contentLength: string }) => video.height === 720).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
     const video1080p = videos.filter((video: { height: number, contentLength: string }) => video.height === 1080).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
 
-    
-    return NextResponse.json({ success: true, videoId, title, audio: audioMedium[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] });
+
+    return NextResponse.json({ success: true, videoId, title, audio: audioMedium[0], video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] });
 }
