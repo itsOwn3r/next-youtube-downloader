@@ -74,6 +74,25 @@ const Main = () => {
         }
     }
 
+
+    const downloadVideo = async (url: string) => {
+        console.log(url);
+        console.log(response?.audio.url);
+        const requestForDowload = await fetch("/api/download", {
+            method: "POST",
+            body: JSON.stringify({
+                url,
+                audio: response?.audio.url
+            })
+        })
+
+        const data = await requestForDowload.json();
+
+        console.log(data);
+    }
+
+
+
     if (response) {
         return (
         <>
@@ -90,10 +109,10 @@ const Main = () => {
                 <div className="flex justify-center flex-col items-center relative w-full h-full max-w-[50%] overflow-hidden">
                     <h2 className="text-2xl">Download:</h2>
                     <div className="flex flex-col gap-y-2">
-                        <Button className="p-6 text-xl">360p - {bytesToSize(Number(response.video.video360.contentLength))}</Button>
-                        <Button className="p-6 text-xl">480p - {bytesToSize(Number(response.video.video480.contentLength))}</Button>
-                        <Button className="p-6 text-xl">720p - {bytesToSize(Number(response.video.video720.contentLength))}</Button>
-                        <Button className="p-6 text-xl">1080p - {bytesToSize(Number(response.video.video1080.contentLength))}</Button>
+                        {response.video.video360 && <Button onClick={() => downloadVideo(response.video.video360.url)} className="p-6 text-xl">360p - {bytesToSize(Number(response.video.video360.contentLength))}</Button>}
+                        {response.video.video480 && <Button onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl">480p - {bytesToSize(Number(response.video.video480.contentLength))}</Button>}
+                        {response.video.video720 && <Button onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl">720p - {bytesToSize(Number(response.video.video720.contentLength))}</Button>}
+                        {response.video.video1080 && <Button onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl">1080p - {bytesToSize(Number(response.video.video1080.contentLength))}</Button>}
                     </div>
                 </div>
                 

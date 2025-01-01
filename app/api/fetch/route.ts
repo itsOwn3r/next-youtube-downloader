@@ -10,15 +10,17 @@ export async function POST(req: NextRequest){
     if (!url) {
         return NextResponse.json({ success: false, message: "Youtube URL Must Be Provided!" });
     }
-
     let videoId;
-
     if (url.includes("youtu.be")) {
         videoId = url.split("/").pop();
     } else {
-        videoId = url.split("v=")[1];
+        if (url.includes("/shorts/")) {
+            videoId = url.split("/shorts/")[1];
+        } else {
+            videoId = url.split("v=")[1];
+        }
     }
-
+    
     if (videoId.includes("?")) {
         videoId = videoId.split("?")[0];
     }
@@ -87,18 +89,63 @@ export async function POST(req: NextRequest){
         })
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const ytApiData = await ytApiResponse.json();
 
-    const audios = ytApiData.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("audio") === true);
-    const audioMedium = audios.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
+    const ytApiResponseWithUrl = await fetch('https://www.youtube.com/youtubei/v1/player?key', {
+        method: 'POST',
+        headers: {
+          'Host': 'www.youtube.com',
+          'content-type': 'application/json',
+          'origin': 'https://www.youtube.com',
+          'X-YouTube-Client-Name': 'ios',
+          'User-Agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
+          'X-Goog-Visitor-Id': 'CgtOb1RUOERRNUtoRSi7mdS7BjIKCgJJUhIEGgAgEw%3D%3D',
+          'Content-Length': '440',
+          'Connection': 'Keep-Alive',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'fa-IR,en,*',
+          'Cookie': 'SOCS=CAI; YSC=Vy698q5UWIs; __Secure-ROLLOUT_TOKEN=CL-E6NKelK6_-wEQrubS-5vUigMYrubS-5vUigM%3D; GPS=1; VISITOR_INFO1_LIVE=NoTT8DQ5KhE; VISITOR_PRIVACY_METADATA=CgJJUhIEGgAgEw%3D%3D'
+        },
+        body: JSON.stringify({
+          'context': {
+            'client': {
+              'clientName': 'IOS',
+              'clientVersion': '19.29.1',
+              'deviceMake': 'Apple',
+              'deviceModel': 'iPhone16,2',
+              'userAgent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
+              'osName': 'iPhone',
+              'osVersion': '17.5.1.21F90',
+              'hl': 'en'
+            }
+          },
+          'playbackContext': {
+            'contentPlaybackContext': {
+              'html5Preference': 'HTML5_PREF_WANTS',
+              'signatureTimestamp': 20073
+            }
+          },
+          'contentCheckOk': true,
+          'racyCheckOk': true,
+          'videoId': videoId
+        })
+      });
+      
+      const ytApiDataWithURL = await ytApiResponseWithUrl.json();
 
-    const videos = ytApiData.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
+
+    const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("audio") === true);
+    const audioMedium = audios.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
+
+    const videos = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
  
 
-    const video360p = videos.filter((video: { height: number, contentLength: string }) => video.height === 360).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
-    const video480p = videos.filter((video: { height: number, contentLength: string }) => video.height === 480).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
-    const video720p = videos.filter((video: { height: number, contentLength: string }) => video.height === 720).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
-    const video1080p = videos.filter((video: { height: number, contentLength: string }) => video.height === 1080).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b.contentLength) - parseInt(a.contentLength));
+    //   console.log(videos.filter((video: { height: number, contentLength: string }) => video.height === 480));
+    const video360p = (videos.filter((video: { height: number, contentLength: string }) => video.height === 360) || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
+    const video480p = (videos.filter((video: { height: number, contentLength: string }) => video.height === 480) || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
+    const video720p = (videos.filter((video: { height: number, contentLength: string }) => video.height === 720) || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
+    const video1080p = (videos.filter((video: { height: number, contentLength: string }) => video.height === 1080) || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
 
     let thumbnail;
 
