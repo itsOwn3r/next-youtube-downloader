@@ -91,7 +91,7 @@ const Main = () => {
     const downloadVideo = async (url: string) => {
         console.log(url);
         console.log(response);
-        const requestForDowload = await fetch("/api/third", {
+        const requestForDowload = await fetch("/api/download", {
             method: "POST",
             headers: {
                 "Content-Type": "text/event-stream",
