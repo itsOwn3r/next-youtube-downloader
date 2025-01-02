@@ -37,15 +37,15 @@ async function downloadFile(url: string, path: string, type: "video" | "audio", 
     await streamPipeline(response.body, createWriteStream(path));
 }
 
-async function mergeAudioVideo(videoPath: string, audioPath: string, outputPath: string) {
-    const command = `ffmpeg -y -i ${videoPath} -i ${audioPath} -c:v copy -c:a aac "${outputPath}"`;
+async function mergeAudioVideo(videoPath: string, audioPath: string, thumbPath: string, outputPath: string) {
+    const command = `ffmpeg -y -i ${videoPath} -i ${audioPath} -i ${thumbPath} -map 0:v -map 1:a -map 2 -c:v copy -c:a aac -disposition:v:1 attached_pic "${outputPath}"`;
     await execPromise(command);
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const data = await req.json();
-        const { url, audio, videoId, title } = data;
+        const { url, audio, videoId, title, thumbnail } = data;
 
         const { readable, writable } = new TransformStream();
         const writer = writable.getWriter();
@@ -55,6 +55,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
         downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => console.log("Video downloaded", Math.ceil(Date.now() / 1000)));
         downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => console.log("Audio downloaded", Math.ceil(Date.now() / 1000)));
+        
+        const thumbnailResponse = await fetch(thumbnail);
+        if (!thumbnailResponse.ok) throw new Error(`unexpected response ${thumbnailResponse.statusText}`);
+        const thumbnailPath = `./public/videos/${videoId}_thumbnail.jpg`;
+        await streamPipeline(thumbnailResponse.body, createWriteStream(thumbnailPath));
 
         const interval = setInterval(async () => {
             if (isDownloaded.video && isDownloaded.audio) {
@@ -62,11 +67,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
                 const sanitizedTitle = title.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
                 const nameOfFile = `${sanitizedTitle}~~${videoId}`;
-                await mergeAudioVideo('./public/videos/downloaded_video.webm', './public/videos/downloaded_audio.webm', `./public/videos/${nameOfFile}.mp4`);
+                await mergeAudioVideo('./public/videos/downloaded_video.webm', './public/videos/downloaded_audio.webm', `./public/videos/${videoId}_thumbnail.jpg` , `./public/videos/${nameOfFile}.mp4`);
                 console.log("Merge Completed", Math.ceil(Date.now() / 1000));
 
                 await unlink('./public/videos/downloaded_video.webm');
                 await unlink('./public/videos/downloaded_audio.webm');
+                await unlink(`./public/videos/${videoId}_thumbnail.jpg`);
             }
         }, 1000);
 

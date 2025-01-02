@@ -149,14 +149,14 @@ export async function POST(req: NextRequest){
 console.log(video480p);
 
 
-    let thumbnail;
+    let thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
 
-    const highQualityThumb = await fetch(`https://i.ytimg.com/vi/${videoId}/hq720.jpg`);
+    const highQualityThumb = await fetch(thumbnail);
 
-    if (highQualityThumb.status === 404) {
+    if (url.includes("/shorts/")) {
+      thumbnail = `https://i.ytimg.com/vi/${videoId}/oar2.jpg`
+    } else if (highQualityThumb.status === 404) {
         thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
-    } else {
-        thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`
     }
 
     return NextResponse.json({ success: true, videoId, title, thumbnail, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});

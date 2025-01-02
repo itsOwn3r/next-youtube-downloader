@@ -100,7 +100,8 @@ const Main = () => {
                 url,
                 videoId: response?.videoId,
                 title: response?.title,
-                audio: response?.audio.url
+                audio: response?.audio.url,
+                thumbnail: response?.thumbnail
             })
         })
 
