@@ -43,6 +43,8 @@ const Main = () => {
     const [url, setUrl] = useState("");
     const [response, setResponse] = useState<ResponseType | null>(null);
 
+    const [downloaded, setDownloaded] = useState("");
+
     console.log(response);
 
     const bytesToSize = (bytes: number) => {
@@ -113,6 +115,14 @@ const Main = () => {
         const {value, done} = await reader.read();
         if (done) break;
         console.log('Received', value);
+        if (value.includes("100.00%")) {
+            setDownloaded("Downloaded video. Downloading audio and merging...");
+            setTimeout(() => {
+                setDownloaded("Download completed!");
+            }, 5000);
+        } else {
+            setDownloaded(value);
+        }
         }
 
         console.log("Done");
@@ -149,6 +159,9 @@ const Main = () => {
                 </div>
 
                 <div className="flex justify-center flex-col items-center relative w-full h-full max-w-[50%] overflow-hidden">
+                    <div className="flex justify-center items-center text-3xl my-4">
+                        <p>{(response && downloaded) && downloaded}</p>
+                    </div>
                     <div className="flex justify-center items-center text-3xl my-4">
                         <p>{msToTime(Number(response.video.video360.approxDurationMs))}</p>
                     </div>
