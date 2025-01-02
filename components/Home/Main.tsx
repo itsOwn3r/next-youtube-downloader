@@ -17,19 +17,23 @@ interface ResponseType {
     video: {
         video360: {
             contentLength: string,
-            url: string
+            url: string,
+            approxDurationMs: string
         },
         video480: {
             contentLength: string,
-            url: string
+            url: string,
+            approxDurationMs: string
         },
         video720: {
             contentLength: string,
-            url: string
+            url: string,
+            approxDurationMs: string
         },
         video1080: {
             contentLength: string,
-            url: string
+            url: string,
+            approxDurationMs: string
         },
     }
 }
@@ -46,6 +50,12 @@ const Main = () => {
         if (bytes === 0) return '0 Byte';
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const msToTime = (duration: number) => {
+        const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
     const handleFetch = async () => {
@@ -113,7 +123,10 @@ const Main = () => {
                 </div>
 
                 <div className="flex justify-center flex-col items-center relative w-full h-full max-w-[50%] overflow-hidden">
-                    <h2 className="text-2xl">Download:</h2>
+                    <div className="flex justify-center items-center text-3xl my-4">
+                        <p>{msToTime(Number(response.video.video360.approxDurationMs))}</p>
+                    </div>
+                     <h2 className="text-2xl">Download:</h2>
                     <div className="flex flex-col gap-y-2">
                         {response.video.video360 && <Button onClick={() => downloadVideo(response.video.video360.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">360p - {bytesToSize(Number(response.video.video360.contentLength) + Number(response.audio.contentLength))}</Button>}
                         {response.video.video480 && <Button onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">480p - {bytesToSize(Number(response.video.video480.contentLength) + Number(response.audio.contentLength))}</Button>}
