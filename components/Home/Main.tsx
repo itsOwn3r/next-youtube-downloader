@@ -89,8 +89,11 @@ const Main = () => {
     const downloadVideo = async (url: string) => {
         console.log(url);
         console.log(response);
-        const requestForDowload = await fetch("/api/download", {
+        const requestForDowload = await fetch("/api/third", {
             method: "POST",
+            headers: {
+                "Content-Type": "text/event-stream",
+            },
             body: JSON.stringify({
                 url,
                 videoId: response?.videoId,
@@ -99,9 +102,32 @@ const Main = () => {
             })
         })
 
-        const data = await requestForDowload.json();
+        console.log("Before start");
 
-        console.log(data);
+        if (!requestForDowload.body) {
+            console.log("Request body is null");
+            return;
+        }
+        const reader = requestForDowload.body.pipeThrough(new TextDecoderStream()).getReader()
+        while (true) {
+        const {value, done} = await reader.read();
+        if (done) break;
+        console.log('Received', value);
+        }
+
+        console.log("Done");
+
+        // const data = await requestForDowload.text();
+        // console.log(data);
+        // const eventSource = new EventSource('/api/sec');
+
+        // eventSource.onmessage = (event) => {
+        //     const data = JSON.parse(event.data);
+        //     console.log('Received data:', data);
+        //     // Update your component state based on the received data
+        //   };
+
+        // console.log(data);
     }
 
 
