@@ -194,7 +194,7 @@ const Main = () => {
                 https://www.youtube.com/watch?v=dQw4w9WgXcQ
                 </code>
             </span>
-            <Button disabled={isLoading} onClick={() => handleFetch()} className="px-7 text-2xl mt-4 bg-green-600" variant="secondary">
+            <Button disabled={isLoading} onClick={() => handleFetch()} className="px-7 text-2xl mt-4 bg-green-600 text-white" variant="secondary">
                 Fetch
             </Button>
             </div>
