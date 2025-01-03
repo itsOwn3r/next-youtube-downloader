@@ -44,6 +44,7 @@ const Main = () => {
     const [response, setResponse] = useState<ResponseType | null>(null);
 
     const [downloaded, setDownloaded] = useState("");
+    const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
 
     console.log(response);
 
@@ -66,6 +67,8 @@ const Main = () => {
         }
         try {
             setIsLoading(true);
+            setDownloaded("");
+            setIsDownloadCompleted(false);
             const response = await fetch("/api/fetch", {
                 method: "POST",
                 body: JSON.stringify({url})
@@ -120,6 +123,7 @@ const Main = () => {
             setDownloaded("Downloaded video. Downloading audio and merging...");
             setTimeout(() => {
                 setDownloaded("Download completed!");
+                setIsDownloadCompleted(true);
             }, 5000);
         } else {
             setDownloaded(value);
@@ -141,6 +145,13 @@ const Main = () => {
         // console.log(data);
     }
 
+    const openDirectory = async () => {
+        const response = await fetch("/api/open", {
+            method: "GET"
+        });
+        const data = await response.json();
+        console.log(data);
+    }
 
 
     if (response) {
@@ -161,7 +172,14 @@ const Main = () => {
 
                 <div className="flex justify-center flex-col items-center relative w-full h-full max-w-[50%] overflow-hidden">
                     <div className="flex justify-center items-center text-3xl my-4">
-                        <p>{(response && downloaded) && downloaded}</p>
+                        <div>{(response && downloaded) && (
+                            <div className="flex flex-col items-center">
+                                {downloaded}
+                                {isDownloadCompleted && (<div>
+                                    <Button onClick={openDirectory}>Open Folder</Button>
+                                </div>)}
+                            </div>
+                        )}</div>
                     </div>
                     <div className="flex justify-center items-center text-3xl my-4">
                         <p>{msToTime(Number(response.video.video360.approxDurationMs))}</p>

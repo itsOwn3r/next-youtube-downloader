@@ -4,7 +4,7 @@ import { createWriteStream } from 'fs';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { exec } from 'child_process';
-import { unlink } from 'fs/promises';
+import { unlink, writeFile } from 'fs/promises';
 
 const streamPipeline = promisify(pipeline);
 const execPromise = promisify(exec);
@@ -52,14 +52,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         writer.write('Connection established...');
 
         const isDownloaded = { video: false, audio: false };
-
-        downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => console.log("Video downloaded", Math.ceil(Date.now() / 1000)));
-        downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => console.log("Audio downloaded", Math.ceil(Date.now() / 1000)));
         
         const thumbnailResponse = await fetch(thumbnail);
         if (!thumbnailResponse.ok) throw new Error(`unexpected response ${thumbnailResponse.statusText}`);
         const thumbnailPath = `./public/videos/${videoId}_thumbnail.jpg`;
-        await streamPipeline(thumbnailResponse.body, createWriteStream(thumbnailPath));
+        const thumbnailBuffer = await thumbnailResponse.buffer();
+        await writeFile(thumbnailPath, thumbnailBuffer);
+        
+        downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => console.log("Video downloaded", Math.ceil(Date.now() / 1000)));
+        downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => console.log("Audio downloaded", Math.ceil(Date.now() / 1000)));
+
 
         const interval = setInterval(async () => {
             if (isDownloaded.video && isDownloaded.audio) {

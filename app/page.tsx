@@ -9,7 +9,9 @@ export default function Home() {
         <Header />
       </div>
         <Main />
-      <div className="min-h-[15%]">footer</div>
+      <div className="min-h-[15%]">
+        {/* FOOTER */}
+      </div>
     </div>
   );
 }
