@@ -154,10 +154,12 @@ const Main = () => {
     }
 
 
+    const isButtonsDisabled = (downloaded && !downloaded.includes("Download completed")) ? true : false;
+
     if (response) {
         return (
         <>
-            <Button className="px-8 py-6 text-xl" variant="secondary" onClick={() => {
+            <Button className="px-8 py-6 text-xl my-6" variant="secondary" onClick={() => {
                 setResponse(null)
                 setUrl(url)
                 }}>Go Back</Button>
@@ -170,7 +172,7 @@ const Main = () => {
                 <h1 className="text-center text-2xl mt-5"><Link className="hover:scale-110 hover:underline underline-offset-8" href={`https://youtu.be/${response.videoId}`}>{response.title}</Link></h1>
                 </div>
 
-                <div className="flex justify-center flex-col items-center relative w-full h-full max-w-[50%] overflow-hidden">
+                <div className="flex justify-center flex-col items-center relative w-full h-full max-w-full md:max-w-[50%] overflow-hidden">
                     <div className="flex justify-center items-center text-3xl my-4">
                         <div>{(response && downloaded) && (
                             <div className="flex flex-col items-center">
@@ -186,10 +188,10 @@ const Main = () => {
                     </div>
                      <h2 className="text-2xl">Download:</h2>
                     <div className="flex flex-col gap-y-2">
-                        {response.video.video360 && <Button onClick={() => downloadVideo(response.video.video360.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">360p - {bytesToSize(Number(response.video.video360.contentLength) + Number(response.audio.contentLength))}</Button>}
-                        {response.video.video480 && <Button onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">480p - {bytesToSize(Number(response.video.video480.contentLength) + Number(response.audio.contentLength))}</Button>}
-                        {response.video.video720 && <Button onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">720p - {bytesToSize(Number(response.video.video720.contentLength) + Number(response.audio.contentLength))}</Button>}
-                        {response.video.video1080 && <Button onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">1080p - {bytesToSize(Number(response.video.video1080.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video360 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video360.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">360p - {bytesToSize(Number(response.video.video360.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video480 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">480p - {bytesToSize(Number(response.video.video480.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video720 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">720p - {bytesToSize(Number(response.video.video720.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video1080 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">1080p - {bytesToSize(Number(response.video.video1080.contentLength) + Number(response.audio.contentLength))}</Button>}
                     </div>
                 </div>
                 
