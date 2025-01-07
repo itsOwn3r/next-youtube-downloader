@@ -42,9 +42,11 @@ const Main = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [url, setUrl] = useState("");
     const [response, setResponse] = useState<ResponseType | null>(null);
-
+    
     const [downloaded, setDownloaded] = useState("");
     const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
+
+    const [audioOnly, setAudioOnly] = useState(false);
 
     console.log(response);
 
@@ -91,7 +93,9 @@ const Main = () => {
     }
 
 
-    const downloadVideo = async (url: string, audioOnly?: boolean) => {
+    const downloadVideo = async (url: string, folder?: string) => {
+        setIsDownloadCompleted(false);
+        setDownloaded("");
         console.log(url);
         console.log(response);
         const requestForDowload = await fetch("/api/download", {
@@ -105,7 +109,7 @@ const Main = () => {
                 title: response?.title,
                 audio: response?.audio.url,
                 thumbnail: response?.thumbnail,
-                audioOnly : audioOnly ? true : false
+                audioOnly: folder === "audios" ? true : false
             })
         })
 
@@ -122,7 +126,8 @@ const Main = () => {
         console.log('Received', value);
         if (value.includes("100.00%")) {
             if (audioOnly) {
-                setDownloaded("Audio ownloaded. Merging files...");                
+                setDownloaded("Audio ownloaded. Merging files...");  
+                setAudioOnly(false);
             } else {
                 setDownloaded("Video downloaded. Downloading audio and merging...");                
             }
@@ -151,9 +156,10 @@ const Main = () => {
         // console.log(data);
     }
 
-    const openDirectory = async () => {
+    const openDirectory = async (folder: string) => {
         const response = await fetch("/api/open", {
-            method: "GET"
+            method: "POST",
+            body: JSON.stringify({ videos: folder === "videos" ? true : false })
         });
         const data = await response.json();
         console.log(data);
@@ -184,7 +190,7 @@ const Main = () => {
                             <div className="flex flex-col items-center">
                                 {downloaded}
                                 {isDownloadCompleted && (<div>
-                                    <Button onClick={openDirectory}>Open Folder</Button>
+                                    <Button onClick={() => openDirectory(audioOnly ? "audios" : "videos")}>Open Folder</Button>
                                 </div>)}
                             </div>
                         )}</div>
@@ -198,7 +204,9 @@ const Main = () => {
                         {response.video.video480 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">480p - {bytesToSize(Number(response.video.video480.contentLength) + Number(response.audio.contentLength))}</Button>}
                         {response.video.video720 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">720p - {bytesToSize(Number(response.video.video720.contentLength) + Number(response.audio.contentLength))}</Button>}
                         {response.video.video1080 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">1080p - {bytesToSize(Number(response.video.video1080.contentLength) + Number(response.audio.contentLength))}</Button>}
-                        {response.video.video720 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.audio.url, true)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">Audio - {bytesToSize(Number(response.audio.contentLength))}</Button>}
+                        {response.video.video720 && <Button disabled={isButtonsDisabled} onClick={() => { 
+                            setAudioOnly(true);
+                            downloadVideo(response.audio.url, "audios")}} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">Audio - {bytesToSize(Number(response.audio.contentLength))}</Button>}
                     </div>
                 </div>
                 

@@ -41,7 +41,7 @@ async function downloadFile(url: string, path: string, type: "video" | "audio", 
 }
 
 async function mergeAudioVideo(videoPath: string, audioPath: string, thumbPath: string, outputPath: string) {
-    const command = `ffmpeg -y -i ${videoPath} -i ${audioPath} -i ${thumbPath} -map 0:v -map 1:a -map 2 -c:v copy -c:a aac -disposition:v:1 attached_pic "${outputPath}"`;
+    const command = `ffmpeg -y -i ${videoPath} -i ${audioPath} -i ${thumbPath} -map 0:v -map 1:a -map 2:v -c:v copy -c:a aac -disposition:v:1 attached_pic "${outputPath}"`;
     await execPromise(command);
 }
 
