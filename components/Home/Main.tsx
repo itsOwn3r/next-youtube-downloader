@@ -91,7 +91,7 @@ const Main = () => {
     }
 
 
-    const downloadVideo = async (url: string) => {
+    const downloadVideo = async (url: string, audioOnly?: boolean) => {
         console.log(url);
         console.log(response);
         const requestForDowload = await fetch("/api/download", {
@@ -104,7 +104,8 @@ const Main = () => {
                 videoId: response?.videoId,
                 title: response?.title,
                 audio: response?.audio.url,
-                thumbnail: response?.thumbnail
+                thumbnail: response?.thumbnail,
+                audioOnly : audioOnly ? true : false
             })
         })
 
@@ -120,7 +121,12 @@ const Main = () => {
         if (done) break;
         console.log('Received', value);
         if (value.includes("100.00%")) {
-            setDownloaded("Downloaded video. Downloading audio and merging...");
+            if (audioOnly) {
+                setDownloaded("Audio ownloaded. Merging files...");                
+            } else {
+                setDownloaded("Video downloaded. Downloading audio and merging...");                
+            }
+
             setTimeout(() => {
                 setDownloaded("Download completed!");
                 setIsDownloadCompleted(true);
@@ -192,6 +198,7 @@ const Main = () => {
                         {response.video.video480 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video480.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">480p - {bytesToSize(Number(response.video.video480.contentLength) + Number(response.audio.contentLength))}</Button>}
                         {response.video.video720 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video720.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">720p - {bytesToSize(Number(response.video.video720.contentLength) + Number(response.audio.contentLength))}</Button>}
                         {response.video.video1080 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.video.video1080.url)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">1080p - {bytesToSize(Number(response.video.video1080.contentLength) + Number(response.audio.contentLength))}</Button>}
+                        {response.video.video720 && <Button disabled={isButtonsDisabled} onClick={() => downloadVideo(response.audio.url, true)} className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105">Audio - {bytesToSize(Number(response.audio.contentLength))}</Button>}
                     </div>
                 </div>
                 

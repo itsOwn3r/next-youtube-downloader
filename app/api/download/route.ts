@@ -9,7 +9,7 @@ import { unlink, writeFile } from 'fs/promises';
 const streamPipeline = promisify(pipeline);
 const execPromise = promisify(exec);
 
-async function downloadFile(url: string, path: string, type: "video" | "audio", writer: WritableStreamDefaultWriter, isDownloaded: { video: boolean, audio: boolean }) {
+async function downloadFile(url: string, path: string, type: "video" | "audio", writer: WritableStreamDefaultWriter, isDownloaded: { video: boolean, audio: boolean }, audioOnly?: boolean) {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`unexpected response ${response.statusText}`);
 
@@ -21,6 +21,9 @@ async function downloadFile(url: string, path: string, type: "video" | "audio", 
         const progress = (downloadedSize / totalSize) * 100;
         if (type === "video" && !isDownloaded.video && writer.desiredSize !== null) {
             writer.write(`Downloading video: ${progress.toFixed(2)}%\n\n`);
+        }
+        if (type === "audio" && audioOnly && !isDownloaded.video && writer.desiredSize !== null) {
+            writer.write(`Downloading Audio: ${progress.toFixed(2)}%\n\n`);
         }
     });
 
@@ -42,10 +45,15 @@ async function mergeAudioVideo(videoPath: string, audioPath: string, thumbPath: 
     await execPromise(command);
 }
 
+async function mergeAudio(videoId: string, nameOfFile: string) {
+    const command = `ffmpeg -y -i "./public/videos/downloaded_audio.webm" -i "./public/videos/${videoId}_thumbnail.jpg" -map 0:a -map 1 -c:a libmp3lame -q:a 2 -id3v2_version 3 -metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" "./public/audios/${nameOfFile}.mp3"`;
+    await execPromise(command);
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const data = await req.json();
-        const { url, audio, videoId, title, thumbnail } = data;
+        const { url, audio, videoId, title, thumbnail, audioOnly } = data;
 
         const { readable, writable } = new TransformStream();
         const writer = writable.getWriter();
@@ -59,22 +67,37 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const thumbnailBuffer = await thumbnailResponse.buffer();
         await writeFile(thumbnailPath, thumbnailBuffer);
         
-        downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => console.log("Video downloaded", Math.ceil(Date.now() / 1000)));
-        downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => console.log("Audio downloaded", Math.ceil(Date.now() / 1000)));
+        if (audioOnly) {
+            downloadFile(url, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded, true).then(() => console.log("Audio only downloaded", Math.ceil(Date.now() / 1000)));
+        } else {
+            downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => console.log("Video downloaded", Math.ceil(Date.now() / 1000)));
+            downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => console.log("Audio downloaded", Math.ceil(Date.now() / 1000)));
+        }
 
 
-        const interval = setInterval(async () => {
-            if (isDownloaded.video && isDownloaded.audio) {
-                clearInterval(interval);
+            const sanitizedTitle = title.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
+            const nameOfFile = `${sanitizedTitle}~~${videoId}`;
 
-                const sanitizedTitle = title.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
-                const nameOfFile = `${sanitizedTitle}~~${videoId}`;
-                await mergeAudioVideo('./public/videos/downloaded_video.webm', './public/videos/downloaded_audio.webm', `./public/videos/${videoId}_thumbnail.jpg` , `./public/videos/${nameOfFile}.mp4`);
-                console.log("Merge Completed", Math.ceil(Date.now() / 1000));
+            const interval = setInterval(async () => {
 
-                await unlink('./public/videos/downloaded_video.webm');
-                await unlink('./public/videos/downloaded_audio.webm');
-                await unlink(`./public/videos/${videoId}_thumbnail.jpg`);
+                if (audioOnly && isDownloaded.audio) {
+                    clearInterval(interval);
+
+                    await mergeAudio(videoId, nameOfFile);
+
+                    await unlink('./public/videos/downloaded_audio.webm');
+                    await unlink(`./public/videos/${videoId}_thumbnail.jpg`);                    
+                }
+
+                if (isDownloaded.video && isDownloaded.audio && !audioOnly) {
+                    clearInterval(interval);
+
+                    await mergeAudioVideo('./public/videos/downloaded_video.webm', './public/videos/downloaded_audio.webm', `./public/videos/${videoId}_thumbnail.jpg` , `./public/videos/${nameOfFile}.mp4`);
+                    console.log("Merge Completed", Math.ceil(Date.now() / 1000));
+
+                    await unlink('./public/videos/downloaded_video.webm');
+                    await unlink('./public/videos/downloaded_audio.webm');
+                    await unlink(`./public/videos/${videoId}_thumbnail.jpg`);
             }
         }, 1000);
 
@@ -92,6 +115,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         });
 
     } catch (error) {
+        console.log((error as Error).message);
         return NextResponse.json({ success: false, message: (error as Error).message });
     }
 }

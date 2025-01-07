@@ -1,6 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 .git
-public/videos
+public/videos/*.mp4
+public/videos/*.webm
+public/videos/*.jpg
+
+public/audios/*.mp3
 
 # dependencies
 /node_modules
