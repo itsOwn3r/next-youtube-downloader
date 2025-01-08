@@ -70,3 +70,25 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes animateOne {
+  0% {
+    @apply rotate-0;
+  }
+  25% {
+    @apply rotate-45;
+  }
+  50% {
+    @apply rotate-90;
+  }
+  75% {
+    @apply rotate-180;
+  }
+  100% {
+    @apply -rotate-45;
+  }
+}
+
+.buttonAnimate {
+  animation: animateOne 2s ease-in-out infinite;
+}

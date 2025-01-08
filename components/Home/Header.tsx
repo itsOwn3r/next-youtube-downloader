@@ -18,7 +18,7 @@ const Header = () => {
     if (typeof window === 'undefined' || !isMounted){
         // return <Loader className='size-5 animate-spin' />
         return (
-            <header className="bg-white dark:bg-gray-800 shadow-md p-4 w-full">
+            <header className="bg-white dark:bg-gray-800 shadow-md p-4 w-full h-16">
             <div className="container w-full mx-auto flex justify-center items-center">
                 <Loader className='size-5 animate-spin' />
             </div>
@@ -29,10 +29,10 @@ const Header = () => {
     
 
     return (
-        <header className="bg-white dark:bg-gray-800 shadow-md p-4 w-full">
+        <header className="bg-white dark:bg-gray-800 shadow-md p-4 w-full h-16">
             <div className="container mx-auto flex justify-between items-center">
-                <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Youtube Downloader
+                <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                    YT Downloader
                 </Link>
                 <div className="space-x-8">
                     <Link href="/" className="text-gray-900 dark:text-white hover:underline">
