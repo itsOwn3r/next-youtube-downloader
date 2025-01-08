@@ -4,6 +4,7 @@ import "./globals.css";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
 
+import { Toaster } from 'react-hot-toast';
 
 const karla = localFont({
   src: "../public/fonts/Karla-VariableFont_wght.ttf"
@@ -30,6 +31,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+                    <Toaster position="top-center" reverseOrder={false} />
             {children}
           </ThemeProvider>
       </body>

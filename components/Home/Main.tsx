@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import toast from 'react-hot-toast';
 
 interface ResponseType {
   success: boolean;
@@ -138,8 +139,16 @@ const Main = () => {
         if (audioOnly) {
           setDownloaded("Audio ownloaded. Merging files...");
           setAudioOnly(false);
+          toast.success("Audio ownloaded.", {
+            duration: 4000,
+            className: "text-xl"
+          });
         } else {
           setDownloaded("Video downloaded. Downloading audio and merging...");
+          toast.success("Video downloaded.", {
+            duration: 4000,
+            className: "text-xl"
+          });          
         }
 
         setTimeout(() => {
