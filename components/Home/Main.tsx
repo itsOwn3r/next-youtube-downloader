@@ -63,17 +63,25 @@ const Main = () => {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
-    const handleFetch = async () => {
-        if (!url) {
+    const handleFetch = async (directURL?: string) => {
+        if (!url && !directURL) {
+            console.log("No URL");
             return;
         }
+
+        let finalURL = url;
+
+        if (directURL) {
+            finalURL = directURL;
+        }
+
         try {
             setIsLoading(true);
             setDownloaded("");
             setIsDownloadCompleted(false);
             const response = await fetch("/api/fetch", {
                 method: "POST",
-                body: JSON.stringify({url})
+                body: JSON.stringify({ url: finalURL })
             });
             if (!response.ok) {
                 throw new Error("Network response was not ok");
@@ -219,13 +227,23 @@ const Main = () => {
             <Input
                 value={url}
                 disabled={isLoading}
+                autoFocus
                 className="max-w-[90%] md:max-w-[30%] p-6 text-2xl shadow-shine"
                 placeholder="Enter Youtube URL"
                 onChange={e => setUrl(e.target.value)}
+                onPaste={async (e) => {
+                    e.preventDefault();
+                    const pastedValue = e.clipboardData.getData('Text');
+                    console.log(pastedValue);
+                    setUrl(pastedValue);
+                    await handleFetch(pastedValue);
+                }}
             />
-            <span>
+            <span className="hover:scale-105">
                 e.g.{" "}
-                <code className="text-sm text-zinc-400">
+                <code className="text-sm text-zinc-400 cursor-pointer" onClick={async () => {
+                    setUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+                }}>
                 https://www.youtube.com/watch?v=dQw4w9WgXcQ
                 </code>
             </span>
