@@ -1,3 +1,4 @@
+import { sanitizedFileName } from "@/lib/sanitizedFileName";
 import { NextRequest, NextResponse } from "next/server";
 // import { writeFileSync } from "fs";
 
@@ -161,7 +162,8 @@ console.log(video480p);
         thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
     }
 
-    return NextResponse.json({ success: true, videoId, title, thumbnail, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});
+    const fileName = sanitizedFileName(title, videoId);
+    return NextResponse.json({ success: true, videoId, title, thumbnail, fileName, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});
 
         
   } catch (error) {

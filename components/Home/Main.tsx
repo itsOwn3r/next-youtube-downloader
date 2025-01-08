@@ -12,6 +12,7 @@ interface ResponseType {
   videoId: string;
   title: string;
   thumbnail: string;
+  fileName: string;
   audio: {
     url: string;
     contentLength: string;
@@ -50,8 +51,6 @@ const Main = () => {
 
   const [audioOnly, setAudioOnly] = useState(false);
 
-  console.log(response);
-
   const bytesToSize = (bytes: number) => {
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     if (bytes === 0) return "0 Byte";
@@ -67,7 +66,6 @@ const Main = () => {
 
   const handleFetch = async (directURL?: string) => {
     if (!url && !directURL) {
-      console.log("No URL");
       toast.error("You must provide a URL!", {
         duration: 4000,
         className: "text-xl"
@@ -75,13 +73,6 @@ const Main = () => {
       return;
     }
 
-    if (!url.includes("youtu.be") && !url.includes("youtube")) {
-      toast.error("You must provide a valid URL!", {
-        duration: 4000,
-        className: "text-xl"
-      });
-      return;
-    }
 
     let finalURL = url;
 
@@ -89,6 +80,13 @@ const Main = () => {
       finalURL = directURL;
     }
 
+    if (!finalURL.includes("youtu.be") && !finalURL.includes("youtube")) {
+      toast.error("You must provide a valid URL!", {
+        duration: 4000,
+        className: "text-xl"
+      });
+      return;
+    }
     try {
       setIsLoading(true);
       setDownloaded("");
@@ -108,7 +106,7 @@ const Main = () => {
       }
 
       const data = await response.json();
-      console.log(data);
+
       if (data.success) {
         setResponse(data);
       } else {
@@ -130,10 +128,8 @@ const Main = () => {
   const downloadVideo = async (url: string, folder?: string) => {
     setIsDownloadCompleted(false);
     setDownloaded("");
-    console.log(url);
-    console.log(response);
 
-try {
+    try {
 
     const requestForDowload = await fetch("/api/download", {
       method: "POST",
@@ -150,10 +146,12 @@ try {
       }),
     });
 
-    console.log("Before start");
 
     if (!requestForDowload.body) {
-      console.log("Request body is null");
+        toast.error("Something is wrong with request body!", {
+            duration: 4000,
+            className: "text-xl"
+          });
       return;
     }
     const reader = requestForDowload.body
@@ -162,15 +160,15 @@ try {
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
-      console.log("Received", value);
+
       if (value.includes("100.00%")) {
-        if (audioOnly) {
-          setDownloaded("Audio ownloaded. Merging files...");
-          setAudioOnly(false);
-          toast.success("Audio ownloaded.", {
-            duration: 4000,
-            className: "text-xl"
-          });
+        if (folder === "audios") {
+            // setAudioOnly(false);
+            setDownloaded("Audio downloaded. Merging files...");
+            toast.success("Audio downloaded.", {
+                duration: 4000,
+                className: "text-xl"
+            });
         } else {
           setDownloaded("Video downloaded. Downloading audio and merging...");
           toast.success("Video downloaded.", {
@@ -194,7 +192,6 @@ try {
             className: "text-xl"
           });
     }
-    console.log("Done");
 
   };
 
@@ -203,6 +200,8 @@ try {
 
 
   const openDirectory = async (folder: string, file?: string) => {
+    console.log("Folder ", folder);
+    console.log("file ", file);
     try {
 
     const response = await fetch("/api/open", {
@@ -275,7 +274,7 @@ try {
                       <div className="flex gap-x-2 mt-2">
                         <Button
                           onClick={() =>
-                            openDirectory(audioOnly ? "audios" : "videos", `${response.title}~~${response.videoId}.mp4`)
+                            openDirectory(audioOnly ? "audios" : "videos", audioOnly ? `${response.fileName}.mp3` : `${response.fileName}.mp4`)
                           }
                         >
                           Open File
@@ -303,7 +302,11 @@ try {
               {response.video.video360 && (
                 <Button
                   disabled={isButtonsDisabled}
-                  onClick={() => downloadVideo(response.video.video360.url)}
+                  onClick={() => {
+                    setAudioOnly(false);
+                    downloadVideo(response.video.video360.url, "videos");
+                    }
+                  }
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
                   360p -{" "}
@@ -316,7 +319,10 @@ try {
               {response.video.video480 && (
                 <Button
                   disabled={isButtonsDisabled}
-                  onClick={() => downloadVideo(response.video.video480.url)}
+                  onClick={() => {
+                    setAudioOnly(false);
+                    downloadVideo(response.video.video480.url, "videos");
+                  }}
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
                   480p -{" "}
@@ -329,7 +335,11 @@ try {
               {response.video.video720 && (
                 <Button
                   disabled={isButtonsDisabled}
-                  onClick={() => downloadVideo(response.video.video720.url)}
+                  onClick={() => {
+                    setAudioOnly(false);
+                    downloadVideo(response.video.video720.url, "videos");
+                    }
+                }
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
                   720p -{" "}
@@ -342,7 +352,10 @@ try {
               {response.video.video1080 && (
                 <Button
                   disabled={isButtonsDisabled}
-                  onClick={() => downloadVideo(response.video.video1080.url)}
+                  onClick={() => {
+                    setAudioOnly(false);
+                    downloadVideo(response.video.video1080.url, "videos");
+                  }}
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
                   1080p -{" "}
@@ -387,8 +400,8 @@ try {
               onPaste={async (e) => {
                 e.preventDefault();
                 const pastedValue = e.clipboardData.getData("Text");
-                console.log(pastedValue);
-                if (!pastedValue.includes("youtu.be") && !pastedValue.includes("youtube")) {
+
+                if (!pastedValue.includes("youtu.be") && !pastedValue.includes("youtube.com")) {
                     toast.error("You must provide a valid URL!", {
                       duration: 4000,
                       className: "text-xl"

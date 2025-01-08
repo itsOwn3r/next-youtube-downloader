@@ -5,6 +5,7 @@ import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import { unlink, writeFile } from 'fs/promises';
+import { sanitizedFileName } from '@/lib/sanitizedFileName';
 
 const streamPipeline = promisify(pipeline);
 const execPromise = promisify(exec);
@@ -75,8 +76,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
 
 
-            const sanitizedTitle = title.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
-            const nameOfFile = `${sanitizedTitle}~~${videoId}`;
+            const nameOfFile = sanitizedFileName(title, videoId);
 
             const interval = setInterval(async () => {
 
