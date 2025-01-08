@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest){
 
+  try {
+
     const data = await req.json();
 
     const { url } = data;
@@ -160,4 +162,9 @@ console.log(video480p);
     }
 
     return NextResponse.json({ success: true, videoId, title, thumbnail, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});
-}
+
+        
+  } catch (error) {
+    return NextResponse.json({ success: false, message: (error as Error).message}, { status: 400 });
+  }
+  }

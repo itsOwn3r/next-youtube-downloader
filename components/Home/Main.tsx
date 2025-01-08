@@ -68,6 +68,18 @@ const Main = () => {
   const handleFetch = async (directURL?: string) => {
     if (!url && !directURL) {
       console.log("No URL");
+      toast.error("You must provide a URL!", {
+        duration: 4000,
+        className: "text-xl"
+      });
+      return;
+    }
+
+    if (!url.includes("youtu.be") && !url.includes("youtube")) {
+      toast.error("You must provide a valid URL!", {
+        duration: 4000,
+        className: "text-xl"
+      });
       return;
     }
 
@@ -81,22 +93,35 @@ const Main = () => {
       setIsLoading(true);
       setDownloaded("");
       setIsDownloadCompleted(false);
+
       const response = await fetch("/api/fetch", {
         method: "POST",
         body: JSON.stringify({ url: finalURL }),
       });
+
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        toast.error("Failed to connect to Youtube...", {
+            duration: 4000,
+            className: "text-xl"
+          });
+          return;
       }
+
       const data = await response.json();
       console.log(data);
       if (data.success) {
         setResponse(data);
       } else {
-        setResponse(data);
-      }
+        toast.error(data.message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+      }   
     } catch (error) {
-      console.error("Fetch error: ", error);
+      toast.error((error as Error).message, {
+        duration: 4000,
+        className: "text-xl"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -107,6 +132,9 @@ const Main = () => {
     setDownloaded("");
     console.log(url);
     console.log(response);
+
+try {
+
     const requestForDowload = await fetch("/api/download", {
       method: "POST",
       headers: {
@@ -159,29 +187,43 @@ const Main = () => {
         setDownloaded(value);
       }
     }
-
+        
+    } catch (error) {
+        toast.error((error as Error).message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+    }
     console.log("Done");
 
-    // const data = await requestForDowload.text();
-    // console.log(data);
-    // const eventSource = new EventSource('/api/sec');
-
-    // eventSource.onmessage = (event) => {
-    //     const data = JSON.parse(event.data);
-    //     console.log('Received data:', data);
-    //     // Update your component state based on the received data
-    //   };
-
-    // console.log(data);
   };
 
-  const openDirectory = async (folder: string) => {
+
+
+
+
+  const openDirectory = async (folder: string, file?: string) => {
+    try {
+
     const response = await fetch("/api/open", {
       method: "POST",
-      body: JSON.stringify({ videos: folder === "videos" ? true : false }),
+      body: JSON.stringify({ videos: folder === "videos" ? true : false, file: file ? file : undefined }),
     });
+
     const data = await response.json();
-    console.log(data);
+
+    if (!data.success) {
+        toast.error(data.message, {
+            duration: 4000,
+            className: "text-xl"
+          });        
+    }
+    } catch (error) {
+        toast.error((error as Error).message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+    }
   };
 
   const isButtonsDisabled =
@@ -230,7 +272,14 @@ const Main = () => {
                   <div className="flex flex-col items-center">
                     {downloaded}
                     {isDownloadCompleted && (
-                      <div>
+                      <div className="flex gap-x-2 mt-2">
+                        <Button
+                          onClick={() =>
+                            openDirectory(audioOnly ? "audios" : "videos", `${response.title}~~${response.videoId}.mp4`)
+                          }
+                        >
+                          Open File
+                        </Button>
                         <Button
                           onClick={() =>
                             openDirectory(audioOnly ? "audios" : "videos")
@@ -339,6 +388,13 @@ const Main = () => {
                 e.preventDefault();
                 const pastedValue = e.clipboardData.getData("Text");
                 console.log(pastedValue);
+                if (!pastedValue.includes("youtu.be") && !pastedValue.includes("youtube")) {
+                    toast.error("You must provide a valid URL!", {
+                      duration: 4000,
+                      className: "text-xl"
+                    });
+                    return;
+                  }
                 setUrl(pastedValue);
                 await handleFetch(pastedValue);
               }}
