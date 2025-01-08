@@ -21,6 +21,9 @@ Super simple and super fast YouTube Downloader, created with NextJS!
 
 - Provides two buttons after the download is finished, whether to open the file or the folder.
 
+
+![Youtube-Downloader](https://github.com/user-attachments/assets/0e626d46-8677-45e7-a076-e6d2ac8f98fb)
+
   
 
 TODO:
