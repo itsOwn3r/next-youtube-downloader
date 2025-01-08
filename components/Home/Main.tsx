@@ -200,8 +200,7 @@ const Main = () => {
 
 
   const openDirectory = async (folder: string, file?: string) => {
-    console.log("Folder ", folder);
-    console.log("file ", file);
+
     try {
 
     const response = await fetch("/api/open", {

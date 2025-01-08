@@ -50,10 +50,8 @@ export async function POST(req: NextRequest){
     let title;
 
     if (match && match[2]) {
-        console.log(match[2]);
-        title = match[2]
+        title = match[2];
     } else {
-        console.log("Title not found");
         title = "Error in fetching  video's title";
     }
 
@@ -144,12 +142,10 @@ export async function POST(req: NextRequest){
     const videos = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
  
 
-    //   console.log(videos.filter((video: { height: number, contentLength: string }) => video.height === 480));
     const video360p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "360p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
     const video480p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
     const video720p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
     const video1080p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "1080p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
-console.log(video480p);
 
 
     let thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;

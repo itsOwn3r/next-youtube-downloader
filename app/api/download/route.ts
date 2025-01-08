@@ -69,10 +69,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         await writeFile(thumbnailPath, thumbnailBuffer);
         
         if (audioOnly) {
-            downloadFile(url, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded, true).then(() => console.log("Audio only downloaded", Math.ceil(Date.now() / 1000)));
+            downloadFile(url, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded, true).then(() => {});
         } else {
-            downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => console.log("Video downloaded", Math.ceil(Date.now() / 1000)));
-            downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => console.log("Audio downloaded", Math.ceil(Date.now() / 1000)));
+            downloadFile(url, './public/videos/downloaded_video.webm', "video", writer, isDownloaded).then(() => {});
+            downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => {});
         }
 
 
@@ -93,7 +93,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                     clearInterval(interval);
 
                     await mergeAudioVideo('./public/videos/downloaded_video.webm', './public/videos/downloaded_audio.webm', `./public/videos/${videoId}_thumbnail.jpg` , `./public/videos/${nameOfFile}.mp4`);
-                    console.log("Merge Completed", Math.ceil(Date.now() / 1000));
 
                     await unlink('./public/videos/downloaded_video.webm');
                     await unlink('./public/videos/downloaded_audio.webm');
@@ -102,7 +101,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }, 1000);
 
         req.signal.addEventListener('abort', () => {
-            console.log("Request aborted");
             writer.close();
         });
 
@@ -115,7 +113,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         });
 
     } catch (error) {
-        console.log((error as Error).message);
         return NextResponse.json({ success: false, message: (error as Error).message }, { status: 400 });
     }
 }
