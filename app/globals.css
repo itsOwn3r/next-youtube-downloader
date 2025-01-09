@@ -92,3 +92,24 @@ body {
 .buttonAnimate {
   animation: animateOne 2s ease-in-out infinite;
 }
+
+
+
+
+
+.container-wrapper {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  border-color: hsl(var(--border) / 0.3);
+}
+.container-wrapper:is(.dark *) {
+  border-color: hsl(var(--border));
+}
+@media (min-width: 1800px) {
+  .container-wrapper {
+    max-width: 1536px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+  }
+}
