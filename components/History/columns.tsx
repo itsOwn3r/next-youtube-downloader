@@ -103,6 +103,7 @@ export const columns: ColumnDef<Task>[] = [
   },
   {
     accessorKey: "date",
+    id: "date",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />
     ),
@@ -125,3 +126,9 @@ export const columns: ColumnDef<Task>[] = [
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]
+
+export const defaultColumn = {
+  id: "date",
+  isSelected: true,
+  sort: 'asc',
+}
