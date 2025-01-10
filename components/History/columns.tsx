@@ -1,6 +1,12 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -9,6 +15,7 @@ import { statuses } from "@/components/data/data"
 import { Task } from "@/components/data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
+import { CheckIcon, XIcon } from "lucide-react"
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -42,9 +49,19 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const uploader = row.original.uploader;
+      const isDownloaded = row.original.isDownloaded;
       
       return (
         <div className="flex space-x-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>{isDownloaded ? <CheckIcon className="size-5 text-green-600" /> : <XIcon className="size-5 text-red-600" />}</TooltipTrigger>
+              <TooltipContent>
+                <p>{isDownloaded ? "Successful Download" : "Not Downloaded"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {uploader && <Badge variant="outline">{uploader}</Badge>}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}
@@ -77,6 +94,9 @@ export const columns: ColumnDef<Task>[] = [
       )
     },
     filterFn: (row, id, value) => {
+      if (value[0] === "all") {
+        return row;
+      }
       return value.includes(row.getValue(id))
     },
   },
@@ -94,10 +114,7 @@ export const columns: ColumnDef<Task>[] = [
           <span>{size as string}</span>
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    }
   },
   {
     accessorKey: "date",

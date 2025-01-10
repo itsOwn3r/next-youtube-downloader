@@ -49,7 +49,7 @@ export function DataTableRowActions<TData>({
         <DropdownMenuItem onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
         <DropdownMenuItem onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem>
         <DropdownMenuItem><Link href={task.thumbnail} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
-        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on youtube</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
         <DropdownMenuSeparator />
 

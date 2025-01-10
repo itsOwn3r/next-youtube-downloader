@@ -42,17 +42,17 @@ export const statuses = [
 
 export const priorities = [
   {
-    label: "Low",
+    label: "Less than 100MB",
     value: "low",
     icon: ArrowDown,
   },
   {
-    label: "Medium",
+    label: "Less than 1GB",
     value: "medium",
     icon: ArrowRight,
   },
   {
-    label: "High",
+    label: "More than 1GB",
     value: "high",
     icon: ArrowUp,
   },
