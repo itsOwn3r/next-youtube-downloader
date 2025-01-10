@@ -6,8 +6,13 @@ export const taskSchema = z.object({
   id: z.number(),
   title: z.string(),
   type: z.string(),
+  link: z.string(),
+  videoId: z.string(),
+  fileName: z.string(),
   uploader: z.string(),
   size: z.string(),
+  thumbnail: z.string(),
+  isDownloaded: z.boolean(),
   date: z.number(),
 })
 

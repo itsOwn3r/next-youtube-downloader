@@ -57,6 +57,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const data = await req.json();
         const { url, audio, videoId, title, thumbnail, audioOnly, size, uploader } = data;
 
+        
+        const nameOfFile = sanitizedFileName(title, videoId);
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const saveToDatabase = await db.download.create({
             data: {
@@ -67,7 +70,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 uploader,
                 link: `https://www.youtube.com/watch?v=${videoId}`,
                 date: Math.ceil(Date.now() / 1000),
-                thumbnail
+                thumbnail,
+                fileName: nameOfFile
             }
         })
 
@@ -90,8 +94,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             downloadFile(audio, './public/videos/downloaded_audio.webm', "audio", writer, isDownloaded).then(() => {});
         }
 
-
-            const nameOfFile = sanitizedFileName(title, videoId);
 
             const interval = setInterval(async () => {
 

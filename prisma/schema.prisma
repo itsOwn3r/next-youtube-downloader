@@ -20,6 +20,7 @@ model Download {
   type DownloadType
   uploader String
   thumbnail String
+  fileName String
   size String
   link String
   videoId String

@@ -21,6 +21,8 @@ import {
 
 // import { labels } from "../data/data"
 import { taskSchema } from "../data/schema"
+import { openDirectory } from "../Home/openDirectory"
+import Link from "next/link"
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -29,8 +31,8 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const task = taskSchema.parse(row.original)
+
+  const task = taskSchema.parse(row.original);
 
   return (
     <DropdownMenu>
@@ -44,10 +46,10 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Open File</DropdownMenuItem>
-        <DropdownMenuItem>Open Folder</DropdownMenuItem>
-        <DropdownMenuItem>Show thumbnail</DropdownMenuItem>
-        <DropdownMenuItem>View on youtube</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem>
+        <DropdownMenuItem><Link href={task.thumbnail} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on youtube</Link></DropdownMenuItem>
         <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
         <DropdownMenuSeparator />
 
@@ -68,6 +70,10 @@ export function DataTableRowActions<TData>({
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Delete
+          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          Delete w/ File
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
