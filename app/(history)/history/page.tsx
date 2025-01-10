@@ -1,30 +1,24 @@
-import { promises as fs } from "fs"
-import path from "path"
 import { Metadata } from "next"
-import { z } from "zod"
 
-import { columns } from "../../../components/History/columns"
-import { DataTable } from "../../../components/History/data-table"
-import { taskSchema } from "../../../components/data/schema"
+import { columns } from "@/components/History/columns"
+import { DataTable } from "@/components/History/data-table"
 
 export const metadata: Metadata = {
   title: "History - YouTube Downloader",
   description: "A History of downloaded Videos and Audios.",
 }
 
-// Simulate a database read for tasks.
-async function getTasks() {
-  const data = await fs.readFile(
-    path.join(process.cwd(), "/components/data/tasks.json")
-  )
 
-  const tasks = JSON.parse(data.toString())
+async function getHistory() {
+  const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
+  const response = await fetch(`${devUrl}/api/history`);
+  const data = await response.json();
 
-  return z.array(taskSchema).parse(tasks)
+  return data.data;
 }
 
-export default async function TaskPage() {
-  const tasks = await getTasks()
+export default async function HistoryPage() {
+  const tasks = await getHistory();
 
   return (
     <>

@@ -42,9 +42,7 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const uploader = row.original.uploader;
-
-      console.log(uploader);
-
+      
       return (
         <div className="flex space-x-2">
           {uploader && <Badge variant="outline">{uploader}</Badge>}

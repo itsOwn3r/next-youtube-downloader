@@ -47,12 +47,22 @@ export async function POST(req: NextRequest){
     const regex = /"videoDetails":{"videoId":"(.*)","title":"(.*?)"/;
     const match = html.match(regex);
 
+    const regexForUploader = /,"ownerChannelName":"(.*?)","/;
+    const matchForUploader = html.match(regexForUploader);
+
     let title;
+    let uploader;
 
     if (match && match[2]) {
         title = match[2];
     } else {
         title = "Error in fetching  video's title";
+    }
+
+    if (matchForUploader && matchForUploader[1]) {
+        uploader = matchForUploader[1];
+    } else {
+        uploader = "Failed to get Uploader";
     }
 
     const ytApiResponse = await fetch('https://www.youtube.com/youtubei/v1/player?key', {
@@ -159,7 +169,7 @@ export async function POST(req: NextRequest){
     }
 
     const fileName = sanitizedFileName(title, videoId);
-    return NextResponse.json({ success: true, videoId, title, thumbnail, fileName, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});
+    return NextResponse.json({ success: true, videoId, title, thumbnail, uploader, fileName, audio: audioMedium[0], video: { video360: video360p[0], video480: video480p[0], video720: video720p[0], video1080: video1080p[0] }});
 
         
   } catch (error) {

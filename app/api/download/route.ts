@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { exec } from 'child_process';
 import { unlink, writeFile } from 'fs/promises';
 import { sanitizedFileName } from '@/lib/sanitizedFileName';
+import db from '@/lib/db';
 
 const streamPipeline = promisify(pipeline);
 const execPromise = promisify(exec);
@@ -54,7 +55,21 @@ async function mergeAudio(videoId: string, nameOfFile: string) {
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const data = await req.json();
-        const { url, audio, videoId, title, thumbnail, audioOnly } = data;
+        const { url, audio, videoId, title, thumbnail, audioOnly, size, uploader } = data;
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const saveToDatabase = await db.download.create({
+            data: {
+                videoId,
+                title,
+                type: audioOnly ? "audio" : "video",
+                size,
+                uploader,
+                link: `https://www.youtube.com/watch?v=${videoId}`,
+                date: Math.ceil(Date.now() / 1000),
+                thumbnail
+            }
+        })
 
         const { readable, writable } = new TransformStream();
         const writer = writable.getWriter();

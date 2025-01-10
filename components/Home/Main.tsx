@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { bytesToSize } from "@/lib/bytesToSize";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,7 @@ interface ResponseType {
   title: string;
   thumbnail: string;
   fileName: string;
+  uploader: string;
   audio: {
     url: string;
     contentLength: string;
@@ -50,13 +52,6 @@ const Main = () => {
   const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
 
   const [audioOnly, setAudioOnly] = useState(false);
-
-  const bytesToSize = (bytes: number) => {
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    if (bytes === 0) return "0 Byte";
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + " " + sizes[i];
-  };
 
   const msToTime = (duration: number) => {
     const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
@@ -108,6 +103,7 @@ const Main = () => {
       const data = await response.json();
 
       if (data.success) {
+        console.log(data);
         setResponse(data);
       } else {
         toast.error(data.message, {
@@ -125,7 +121,7 @@ const Main = () => {
     }
   };
 
-  const downloadVideo = async (url: string, folder?: string) => {
+  const downloadVideo = async (url: string, size: string, folder?: string) => {
     setIsDownloadCompleted(false);
     setDownloaded("");
 
@@ -143,6 +139,8 @@ const Main = () => {
         audio: response?.audio.url,
         thumbnail: response?.thumbnail,
         audioOnly: folder === "audios" ? true : false,
+        uploader: response?.uploader,
+        size
       }),
     });
 
@@ -162,6 +160,7 @@ const Main = () => {
       if (done) break;
 
       if (value.includes("100.00%")) {
+        finishDownload((response?.videoId as string));
         if (folder === "audios") {
             // setAudioOnly(false);
             setDownloaded("Audio downloaded. Merging files...");
@@ -216,6 +215,34 @@ const Main = () => {
             className: "text-xl"
           });        
     }
+    } catch (error) {
+        toast.error((error as Error).message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+    }
+  };
+
+  const finishDownload = async (videoId: string) => {
+
+    if (!videoId) {
+      toast.error("Failed to mark download as 'Finished' in DB", {
+        duration: 4000,
+        className: "text-xl"
+      });
+      return;
+    }
+
+    try {
+
+    const response = await fetch("/api/finish", {
+      method: "POST",
+      body: JSON.stringify({ videoId }),
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const data = await response.json();
+
     } catch (error) {
         toast.error((error as Error).message, {
             duration: 4000,
@@ -303,7 +330,10 @@ const Main = () => {
                   disabled={isButtonsDisabled}
                   onClick={() => {
                     setAudioOnly(false);
-                    downloadVideo(response.video.video360.url, "videos");
+                    downloadVideo(response.video.video360.url, bytesToSize(
+                      Number(response.video.video360.contentLength) +
+                        Number(response.audio.contentLength)
+                    ), "videos");
                     }
                   }
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
@@ -320,7 +350,10 @@ const Main = () => {
                   disabled={isButtonsDisabled}
                   onClick={() => {
                     setAudioOnly(false);
-                    downloadVideo(response.video.video480.url, "videos");
+                    downloadVideo(response.video.video480.url, bytesToSize(
+                      Number(response.video.video480.contentLength) +
+                        Number(response.audio.contentLength)
+                    ), "videos");
                   }}
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
@@ -336,7 +369,10 @@ const Main = () => {
                   disabled={isButtonsDisabled}
                   onClick={() => {
                     setAudioOnly(false);
-                    downloadVideo(response.video.video720.url, "videos");
+                    downloadVideo(response.video.video720.url, bytesToSize(
+                      Number(response.video.video720.contentLength) +
+                        Number(response.audio.contentLength)
+                    ), "videos");
                     }
                 }
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
@@ -353,7 +389,10 @@ const Main = () => {
                   disabled={isButtonsDisabled}
                   onClick={() => {
                     setAudioOnly(false);
-                    downloadVideo(response.video.video1080.url, "videos");
+                    downloadVideo(response.video.video1080.url, bytesToSize(
+                      Number(response.video.video1080.contentLength) +
+                        Number(response.audio.contentLength)
+                    ), "videos");
                   }}
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
@@ -369,7 +408,7 @@ const Main = () => {
                   disabled={isButtonsDisabled}
                   onClick={() => {
                     setAudioOnly(true);
-                    downloadVideo(response.audio.url, "audios");
+                    downloadVideo(response.audio.url, bytesToSize(Number(response.audio.contentLength)), "audios");
                   }}
                   className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
                 >
