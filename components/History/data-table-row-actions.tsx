@@ -9,17 +9,17 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
+  // DropdownMenuRadioGroup,
+  // DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
+  // DropdownMenuSub,
+  // DropdownMenuSubContent,
+  // DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { labels } from "../data/data"
+// import { labels } from "../data/data"
 import { taskSchema } from "../data/schema"
 
 interface DataTableRowActionsProps<TData> {
@@ -29,6 +29,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const task = taskSchema.parse(row.original)
 
   return (
@@ -43,10 +44,14 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
+        <DropdownMenuItem>Open File</DropdownMenuItem>
+        <DropdownMenuItem>Open Folder</DropdownMenuItem>
+        <DropdownMenuItem>Show thumbnail</DropdownMenuItem>
+        <DropdownMenuItem>View on youtube</DropdownMenuItem>
+        <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
         <DropdownMenuSeparator />
+
+        {/* TODO: change of Playlist
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
@@ -58,7 +63,8 @@ export function DataTableRowActions<TData>({
               ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
-        </DropdownMenuSub>
+        </DropdownMenuSub> */}
+
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Delete

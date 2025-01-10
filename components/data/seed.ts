@@ -8,7 +8,7 @@ const tasks = Array.from({ length: 100 }, () => ({
   id: `TASK-${faker.number.int({ min: 1000, max: 9999 })}`,
   title: faker.hacker.phrase().replace(/^./, (letter) => letter.toUpperCase()),
   type: faker.helpers.arrayElement(statuses).value,
-  label: faker.helpers.arrayElement(labels).value,
+  uploader: faker.helpers.arrayElement(labels).value,
   size: faker.helpers.arrayElement(priorities).value,
 }))
 
