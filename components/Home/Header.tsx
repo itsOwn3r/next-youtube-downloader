@@ -3,8 +3,27 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Loader } from 'lucide-react';
+import Proxy from './Proxy';
 
-const Header = () => {
+interface ProxyProps {
+
+    proxy: {
+  
+      id: number;
+  
+      protocol: string;
+  
+      ip: string;
+  
+      port: number;
+  
+      isActive: boolean;
+  
+    } | null;
+  
+  }
+
+const Header = ({ proxy }: ProxyProps) => {
     
     const { theme, setTheme } = useTheme();
 
@@ -34,7 +53,7 @@ const Header = () => {
                 <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                     YT Downloader
                 </Link>
-                <div className="space-x-3 md:space-x-8">
+                <div className="flex items-center space-x-3 md:space-x-8">
                     <Link href="/history" className="text-gray-900 dark:text-white hover:underline">
                         History
                     </Link>
@@ -48,6 +67,7 @@ const Header = () => {
                     >
                     {theme === 'light' ? '🌙' : '☀️'}
                 </button>
+                <Proxy proxy={proxy} />
                     </div>
             </div>
         </header>

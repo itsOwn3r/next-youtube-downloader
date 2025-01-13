@@ -14,9 +14,9 @@ export default async function Home() {
   return (
     <div className="size-full flex justify-between items-center flex-col min-h-[100dvh]">
       <div className="min-h-[15%] w-full">
-        <Header />
+        <Header proxy={proxy} />
       </div>
-        <Main proxy={proxy} />
+        <Main />
       <div className="min-h-[15%]">
         {/* FOOTER */}
       </div>
