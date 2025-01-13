@@ -1,5 +1,8 @@
 import { sanitizedFileName } from "@/lib/sanitizedFileName";
 import { NextRequest, NextResponse } from "next/server";
+import fetch from 'node-fetch';
+import getProxy from "@/lib/getProxy";
+
 // import { writeFileSync } from "fs";
 
 export async function POST(req: NextRequest){
@@ -28,20 +31,23 @@ export async function POST(req: NextRequest){
         videoId = videoId.split("?")[0];
     }
 
+    const proxy = await getProxy();
+    
     const response = await fetch(`https://m.youtube.com/watch?v=${videoId}`, {
-        headers: {
-          'Host': 'm.youtube.com',
-          'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Accept-Language': 'en-us,en;q=0.5',
-          'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
-          'Connection': 'Keep-Alive',
-          'Cookie': 'SOCS=CAI; YSC=Vy698q5UWIs; __Secure-ROLLOUT_TOKEN=CL-E6NKelK6_-wEQrubS-5vUigMYrubS-5vUigM%3D; GPS=1; VISITOR_INFO1_LIVE=NoTT8DQ5KhE; VISITOR_PRIVACY_METADATA=CgJJUhIEGgAgEw%3D%3D'
-        }
-      });
+      agent: proxy ? proxy : undefined,
+      headers: {
+      'Host': 'm.youtube.com',
+      'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Accept-Language': 'en-us,en;q=0.5',
+      'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+      'Connection': 'Keep-Alive',
+      'Cookie': 'SOCS=CAI; YSC=Vy698q5UWIs; __Secure-ROLLOUT_TOKEN=CL-E6NKelK6_-wEQrubS-5vUigMYrubS-5vUigM%3D; GPS=1; VISITOR_INFO1_LIVE=NoTT8DQ5KhE; VISITOR_PRIVACY_METADATA=CgJJUhIEGgAgEw%3D%3D'
+      }
+    });
 
-      const html = await response.text();
+    const html = await response.text();
 
 
     const regex = /"videoDetails":{"videoId":"(.*)","title":"(.*?)"/;
@@ -67,6 +73,7 @@ export async function POST(req: NextRequest){
 
     const ytApiResponse = await fetch('https://www.youtube.com/youtubei/v1/player?key', {
         method: 'POST',
+        agent: proxy ? proxy : undefined,
         headers: {
           'Host': 'www.youtube.com',
           'content-type': 'application/json',
@@ -105,6 +112,7 @@ export async function POST(req: NextRequest){
 
     const ytApiResponseWithUrl = await fetch('https://www.youtube.com/youtubei/v1/player?key', {
         method: 'POST',
+        agent: proxy ? proxy : undefined,
         headers: {
           'Host': 'www.youtube.com',
           'content-type': 'application/json',
@@ -160,7 +168,7 @@ export async function POST(req: NextRequest){
 
     let thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
 
-    const highQualityThumb = await fetch(thumbnail);
+    const highQualityThumb = await fetch(thumbnail, { agent: proxy ? proxy : undefined });
 
     if (url.includes("/shorts/")) {
       thumbnail = `https://i.ytimg.com/vi/${videoId}/oar2.jpg`
@@ -173,6 +181,7 @@ export async function POST(req: NextRequest){
 
         
   } catch (error) {
+    console.log((error as Error).message);
     return NextResponse.json({ success: false, message: (error as Error).message}, { status: 400 });
   }
   }

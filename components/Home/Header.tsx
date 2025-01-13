@@ -35,7 +35,7 @@ const Header = () => {
                     YT Downloader
                 </Link>
                 <div className="space-x-8">
-                    <Link href="/" className="text-gray-900 dark:text-white hover:underline">
+                    <Link href="/history" className="text-gray-900 dark:text-white hover:underline">
                         History
                     </Link>
                     <Link href="https://github.com/itsOwn3r/next-youtube-downloader" target='_blank' className="text-gray-900 dark:text-white hover:underline">

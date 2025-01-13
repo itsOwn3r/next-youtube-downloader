@@ -249,11 +249,11 @@ const Main = () => {
           <div className="w-full flex justify-center flex-col items-center">
             <div className="relative w-11/12 h-[35rem] rounded-xl shadow-shine">
               <Image
-                className="rounded-xl"
-                fill
-                sizes="100"
-                src={response.thumbnail}
-                alt={response.title}
+              className="rounded-xl"
+              fill
+              sizes="100"
+              src={`/api/proxy/image?url=${encodeURIComponent(response.thumbnail)}`}
+              alt={response.title}
               />
             </div>
             <h1 className="text-center text-2xl mt-5">

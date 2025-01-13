@@ -7,12 +7,16 @@ import { exec } from 'child_process';
 import { unlink, writeFile } from 'fs/promises';
 import { sanitizedFileName } from '@/lib/sanitizedFileName';
 import db from '@/lib/db';
+import getProxy from '@/lib/getProxy';
 
 const streamPipeline = promisify(pipeline);
 const execPromise = promisify(exec);
 
+
+const proxy = await getProxy();
+
 async function downloadFile(url: string, path: string, type: "video" | "audio", writer: WritableStreamDefaultWriter, isDownloaded: { video: boolean, audio: boolean }, audioOnly?: boolean) {
-    const response = await fetch(url);
+    const response = await fetch(url, { agent: proxy ? proxy : undefined });
     if (!response.ok) throw new Error(`unexpected response ${response.statusText}`);
 
     const totalSize = Number(response.headers.get('content-length'));
@@ -80,8 +84,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         writer.write('Connection established...');
 
         const isDownloaded = { video: false, audio: false };
-        
-        const thumbnailResponse = await fetch(thumbnail);
+
+        const thumbnailResponse = await fetch(thumbnail, { agent: proxy ? proxy : undefined });
         if (!thumbnailResponse.ok) throw new Error(`unexpected response ${thumbnailResponse.statusText}`);
         const thumbnailPath = `./public/videos/${videoId}_thumbnail.jpg`;
         const thumbnailBuffer = await thumbnailResponse.buffer();

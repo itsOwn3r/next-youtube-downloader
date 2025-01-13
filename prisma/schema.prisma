@@ -32,3 +32,17 @@ enum DownloadType {
   audio
   video
 }
+
+
+model Proxy {
+  id Int @id
+  ip String
+  port Int
+  protocol Protocol
+  isActive Boolean @default(true)
+}
+
+enum Protocol {
+  HTTP
+  HTTPS
+}
