@@ -34,7 +34,7 @@ const Header = () => {
                 <Link href="/" className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                     YT Downloader
                 </Link>
-                <div className="space-x-8">
+                <div className="space-x-3 md:space-x-8">
                     <Link href="/history" className="text-gray-900 dark:text-white hover:underline">
                         History
                     </Link>
@@ -44,7 +44,7 @@ const Header = () => {
 
                 <button
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                    className="ml-4 p-1 bg-gray-200 dark:bg-gray-700 rounded-full"
+                    className="ml-4 p-1 bg-gray-200 dark:bg-gray-700 rounded-full hover:animate-spin"
                     >
                     {theme === 'light' ? '🌙' : '☀️'}
                 </button>
