@@ -138,7 +138,7 @@ const Proxy = ({ proxy }: MainProps) => {
       });
 
       if (!response.ok) {
-        toast.error("Failed to set proxy...", {
+        toast.error("Failed to set the proxy...", {
             duration: 4000,
             className: "text-xl"
           });
@@ -148,11 +148,50 @@ const Proxy = ({ proxy }: MainProps) => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success("Proxy set successfully!", {
+        toast.success("Proxy has been set successfully!", {
             duration: 4000,
             className: "text-xl"
           });
           setIsModalOpen(false);
+      } else {
+        toast.error(data.message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+      }   
+    } catch (error) {
+      toast.error((error as Error).message, {
+        duration: 4000,
+        className: "text-xl"
+      });
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
+  const proxyTestHandler = async () => {
+    if (!protocol || !ip || !port) {
+        toast.error("You must provide valid data!", {
+            duration: 4000,
+            className: "text-xl"
+          });
+          return;      
+    }
+    try {
+      setIsLoading(true);
+
+      const response = await fetch("/api/proxy/test", {
+        method: "POST",
+        body: JSON.stringify({ protocol, ip, port }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(data.message, {
+            duration: 4000,
+            className: "text-xl"
+          });
       } else {
         toast.error(data.message, {
             duration: 4000,
@@ -216,7 +255,8 @@ const Proxy = ({ proxy }: MainProps) => {
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button disabled={isLoading} onClick={() => setIsModalOpen(false)} variant="outline">Cancel</Button>
-              <Button disabled={isLoading} className="bg-green-600" type="submit" onClick={proxyChangeHandler}>Save</Button>
+              <Button disabled={isLoading} className="bg-gray-600 text-white" type="submit" onClick={proxyTestHandler}>Test Proxy</Button>
+              <Button disabled={isLoading} className="bg-green-600 text-white" type="submit" onClick={proxyChangeHandler}>Save</Button>
             </CardFooter>
           </Card>
 
