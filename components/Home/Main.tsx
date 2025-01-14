@@ -407,8 +407,11 @@ const Main = () => {
     );
   } else {
     return (
-      <div className="min-h-[70%] flex items-center justify-center flex-col w-full mb-16">
-        <h2 className="mb-16 text-xl sm:text-3xl md:text-5xl w-full text-center">
+      <div className="min-h-[70%] flex items-center justify-center flex-col w-full mb-32">
+        <div className="relative size-40 md:size-64 mb-2">
+          <Image alt="YouTube Downloader" src="/yt2-min.png" fill sizes="100" />
+        </div>
+        <h2 className="mb-8 text-xl sm:text-3xl md:text-5xl w-full text-center">
           Next Youtube Downloader !
         </h2>
         <div className="w-full flex justify-center items-center flex-1">
