@@ -1,12 +1,10 @@
 import { Metadata } from "next";
 
-import { HistoryNav } from "@/components/HistoryNav";
-import Header from "@/components/Home/Header";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Examples",
-  description: "Check out some examples app built using the components.",
+  title: "History - YouTube Downloader",
+  description: "A History of downloaded Videos and Audios.",
 };
 
 export default function ExamplesLayout({
@@ -15,26 +13,12 @@ export default function ExamplesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div vaul-drawer-wrapper="">
+    <div>
       <div className="relative flex min-h-svh flex-col bg-background">
-        <div data-wrapper="" className="border-grid flex flex-1 flex-col">
-          <Header />
-          <main className="flex flex-1 flex-col">
-            <div className="border-grid border-b">
-              <div className="container-wrapper">
-                <div className="container py-4">
-                  <HistoryNav />
-                </div>
-              </div>
-            </div>
-            <div className="container-wrapper">
-              <div className="container py-6">
-                <section className="overflow-hidden rounded-[0.5rem] border bg-background shadow">
-                  {children}
-                </section>
-              </div>
-            </div>
-          </main>
+        <div className="border-grid flex flex-1 flex-col">
+
+          {children}
+
           <footer className="border-grid border-t py-6 md:px-8 md:py-0">
             <div className="container-wrapper">
               <div className="container py-4">
@@ -55,7 +39,7 @@ export default function ExamplesLayout({
                     rel="noreferrer"
                     className="font-medium underline underline-offset-4"
                   >
-                     GitHub
+                    GitHub
                   </Link>
                   .
                 </div>
