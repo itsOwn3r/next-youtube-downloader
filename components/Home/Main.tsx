@@ -240,8 +240,8 @@ const Main = () => {
     return (
       <>
         <Button
-          className="px-8 py-6 text-xl my-6"
-          variant="secondary"
+          className="px-8 py-6 text-lg md:text-xl my-6 shadow-shine"
+          variant="outline"
           onClick={() => {
             setResponse(null);
             setUrl(url);
@@ -249,9 +249,9 @@ const Main = () => {
         >
           Go Back
         </Button>
-        <div className="min-h-[70%] flex items-center justify-center flex-col md:flex-row w-full md:w-9/12">
+        <div className="min-h-[70%] flex items-center justify-center flex-col md:flex-row w-full md:w-11/12 lg:w-9/12">
           <div className="w-full flex justify-center flex-col items-center">
-            <div className="relative w-11/12 h-[35rem] rounded-xl shadow-shine">
+            <div className="relative w-11/12 h-[16rem] sm:h-[20rem] md:h-[22rem] lg:h-[27rem] xl:h-[32rem] rounded-xl shadow-shine">
               <Image
               className="rounded-xl"
               fill
@@ -260,7 +260,7 @@ const Main = () => {
               alt={response.title}
               />
             </div>
-            <h1 className="text-center text-2xl mt-5">
+            <h1 className="text-center text-xl md:text-2xl mt-5 px-2">
               <Link
                 className="hover:scale-110 hover:underline underline-offset-8"
                 href={`https://youtu.be/${response.videoId}`}
@@ -272,10 +272,10 @@ const Main = () => {
             </h1>
           </div>
 
-          <div className="flex justify-center flex-col items-center relative w-full h-full max-w-full md:max-w-[50%] overflow-hidden">
-            <div className="flex justify-center items-center text-3xl my-4">
+          <div className="flex justify-center flex-col items-center relative w-full h-full max-w-full md:max-w-[50%] overflow-hidden mb-4">
+            {response && downloaded && (<div className="flex justify-center items-center text-3xl my-4">
               <div>
-                {response && downloaded && (
+                
                   <div className="flex flex-col items-center">
                     {downloaded}
                     {isDownloadCompleted && (
@@ -297,16 +297,18 @@ const Main = () => {
                       </div>
                     )}
                   </div>
-                )}
               </div>
             </div>
-            <div className="flex justify-center items-center text-3xl my-4">
+            )}
+
+            <div className="flex justify-center items-center text-xl md:text-3xl my-4">
               <p>
-                {msToTime(Number(response.video.video360.approxDurationMs))}
+                Duration: {msToTime(Number(response.video.video360.approxDurationMs))}
               </p>
             </div>
-            <h2 className="text-2xl">Download:</h2>
-            <div className="flex flex-col gap-y-2">
+            <h2 className="text-2xl md:text-3xl mt-2 mb-1">Download:</h2>
+            <div className="w-full flex justify-center">
+              <div className="flex flex-col gap-y-2 w-[80%] md:w-[65%]">
               {response.video.video360 && (
                 <Button
                   disabled={isButtonsDisabled}
@@ -318,7 +320,7 @@ const Main = () => {
                     ), "videos");
                     }
                   }
-                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
+                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105 w-full"
                 >
                   360p -{" "}
                   {bytesToSize(
@@ -337,7 +339,7 @@ const Main = () => {
                         Number(response.audio.contentLength)
                     ), "videos");
                   }}
-                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
+                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105 w-full"
                 >
                   480p -{" "}
                   {bytesToSize(
@@ -357,7 +359,7 @@ const Main = () => {
                     ), "videos");
                     }
                 }
-                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
+                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105 w-full"
                 >
                   720p -{" "}
                   {bytesToSize(
@@ -376,7 +378,7 @@ const Main = () => {
                         Number(response.audio.contentLength)
                     ), "videos");
                   }}
-                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
+                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105 w-full"
                 >
                   1080p -{" "}
                   {bytesToSize(
@@ -392,11 +394,12 @@ const Main = () => {
                     setAudioOnly(true);
                     downloadVideo(response.audio.url, bytesToSize(Number(response.audio.contentLength)), "audios");
                   }}
-                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105"
+                  className="p-6 text-xl hover:bg-green-600 hover:text-teal-50 hover:scale-105 w-full"
                 >
                   Audio - {bytesToSize(Number(response.audio.contentLength))}
                 </Button>
               )}
+              </div>
             </div>
           </div>
         </div>
