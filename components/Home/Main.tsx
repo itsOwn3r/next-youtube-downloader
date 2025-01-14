@@ -472,7 +472,7 @@ const Main = () => {
           </span>
 
 
-          <span className="relative text-white opacity-100 text-xl">Fetch Video</span>
+          <span className={cn("relative text-white opacity-100 text-xl", isLoading && "animate-pulse")}>{isLoading ? "Fetching Video" : "Fetch Video"}</span>
         </button>
       </div>
     );

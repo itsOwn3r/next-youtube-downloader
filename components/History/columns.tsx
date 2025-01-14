@@ -16,6 +16,8 @@ import { Task } from "@/components/data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 import { CheckIcon, XIcon } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -52,7 +54,7 @@ export const columns: ColumnDef<Task>[] = [
       const isDownloaded = row.original.isDownloaded;
       
       return (
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>{isDownloaded ? <CheckIcon className="size-5 text-green-600" /> : <XIcon className="size-5 text-red-600" />}</TooltipTrigger>
@@ -61,8 +63,9 @@ export const columns: ColumnDef<Task>[] = [
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <Link className="size-12 relative" href={row.original.thumbnail} target="_blank" rel="noreferrer noopener"><Image className="rounded-3xl shadow-shine" src={`/api/proxy/image?url=https://i.ytimg.com/vi/${row.original.videoId}/hqdefault.jpg?sqp=-oaymwEmCKgBEF5IWvKriqkDGQgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAE=&rs=AOn4CLA0fCn3GNRJT_l1C_8WpZ7T8Qo-aA`} fill alt={row.original.title} /></Link>
 
-          {uploader && <Badge variant="outline">{uploader}</Badge>}
+          {uploader && <Badge variant="outline" className="py-1 hover:scale-105">{uploader}</Badge>}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}
           </span>

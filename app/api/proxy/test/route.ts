@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       const html = await response.text();
 
 
-    return NextResponse.json({ success: true, message: "Proxy is valid!" })
+    return NextResponse.json({ success: true, message: "YouTube is accessible!" })
     
 
   } catch (error) {
