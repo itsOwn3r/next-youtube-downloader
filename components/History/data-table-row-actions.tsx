@@ -23,6 +23,8 @@ import {
 import { taskSchema } from "../data/schema"
 import { openDirectory } from "../Home/openDirectory"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -32,7 +34,41 @@ export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
 
+  const router = useRouter();
+
   const task = taskSchema.parse(row.original);
+
+
+  const deleteFromHistory = async () => {
+
+    const response = await fetch(`/api/history/delete/${task.id}`, {
+      method: "DELETE"
+    });
+
+    if (response.ok) {
+      toast.success("Item removed from histroy.", { className: "text-xl" });
+      router.refresh();
+    } else {
+      toast.error("Something went wrong!", { className: "text-xl" });
+    }
+
+  }
+
+
+  const deleteFromHistoryAndFiles = async () => {
+
+    const response = await fetch(`/api/history/delete/file/${task.id}`, {
+      method: "DELETE"
+    });
+
+    if (response.ok) {
+      toast.success("Item removed from histroy.", { className: "text-xl" });
+      router.refresh();
+    } else {
+      toast.error("Something went wrong!", { className: "text-xl" });
+    }
+
+  }
 
   return (
     <DropdownMenu>
@@ -46,10 +82,15 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem>
         <DropdownMenuItem><Link href={task.thumbnail} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
         <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => {
+          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${task.videoId}`)
+            toast.success("Link copied to clipboard.", { className: "text-lg" })  
+          }
+          }>Copy link</DropdownMenuItem>
         <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
         <DropdownMenuSeparator />
 
@@ -68,11 +109,11 @@ export function DataTableRowActions<TData>({
         </DropdownMenuSub> */}
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={deleteFromHistory} className="cursor-pointer">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
           Delete w/ File
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

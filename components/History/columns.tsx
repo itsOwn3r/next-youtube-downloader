@@ -63,7 +63,7 @@ export const columns: ColumnDef<Task>[] = [
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Link className="size-12 relative" href={row.original.thumbnail} target="_blank" rel="noreferrer noopener"><Image className="rounded-3xl shadow-shine" src={`/api/proxy/image?url=https://i.ytimg.com/vi/${row.original.videoId}/hqdefault.jpg?sqp=-oaymwEmCKgBEF5IWvKriqkDGQgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAE=&rs=AOn4CLA0fCn3GNRJT_l1C_8WpZ7T8Qo-aA`} fill alt={row.original.title} /></Link>
+          <Link className="size-12 relative" href={row.original.thumbnail} target="_blank" rel="noreferrer noopener"><Image className="rounded-3xl shadow-shine" src={`/api/proxy/image?url=https://i.ytimg.com/vi/${row.original.videoId}/hqdefault.jpg?sqp=-oaymwEmCKgBEF5IWvKriqkDGQgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAE=&rs=AOn4CLA0fCn3GNRJT_l1C_8WpZ7T8Qo-aA`} fill sizes="100" alt={row.original.title} /></Link>
 
           {uploader && <Badge variant="outline" className="py-1 hover:scale-105">{uploader}</Badge>}
           <span className="max-w-[500px] truncate font-medium">

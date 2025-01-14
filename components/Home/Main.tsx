@@ -107,7 +107,6 @@ const Main = () => {
       const data = await response.json();
 
       if (data.success) {
-        console.log(data);
         setResponse(data);
       } else {
         toast.error(data.message, {
