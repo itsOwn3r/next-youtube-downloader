@@ -29,7 +29,7 @@ Super simple and super fast YouTube Downloader, created with NextJS!
 
 TODO:
 
-- Database connection and saving a history of downloaded videos/audios
+- ✅ Database connection and saving a history of downloaded videos/audios
 
 - Support for adding playlist
 
