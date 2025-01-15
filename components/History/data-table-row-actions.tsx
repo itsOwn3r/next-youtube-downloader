@@ -62,7 +62,7 @@ export function DataTableRowActions<TData>({
     });
 
     if (response.ok) {
-      toast.success("Item removed from histroy.", { className: "text-xl" });
+      toast.success("File Deleted!", { className: "text-xl" });
       router.refresh();
     } else {
       toast.error("Something went wrong!", { className: "text-xl" });
@@ -82,8 +82,8 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem>
+        {task.isDownloaded && (<><DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem></>)}
         <DropdownMenuItem><Link href={task.thumbnail} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
         <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => {
@@ -113,10 +113,10 @@ export function DataTableRowActions<TData>({
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
+        {task.isDownloaded && <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
           Delete w/ File
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        </DropdownMenuItem>}
       </DropdownMenuContent>
     </DropdownMenu>
   )
