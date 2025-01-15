@@ -42,6 +42,7 @@ model Proxy {
 model Playlist {
   id String @id
   title String
+  url String
   description String?
   imageUrl String
   numberOfItems Int?
@@ -54,6 +55,10 @@ model Playlist {
 
 model PlaylistItem {
   id Int @id @default(autoincrement())
+  videoId String
+  title String
+  videoLength String
+  uploader String
   playlistId String
   downloadId Int
   createdAt DateTime @default(now())

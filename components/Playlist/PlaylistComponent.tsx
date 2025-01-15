@@ -58,7 +58,7 @@ const PlaylistComponent = () => {
     try {
       setIsLoading(true);
 
-      const response = await fetch("/api/playlist", {
+      const response = await fetch("/api/playlist/add", {
         method: "POST",
         body: JSON.stringify({ autoUpdate, link, title }),
       });
@@ -74,7 +74,7 @@ const PlaylistComponent = () => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success("Proxy has been set successfully!", {
+        toast.success("Playlist Added!", {
             duration: 4000,
             className: "text-xl"
           });
