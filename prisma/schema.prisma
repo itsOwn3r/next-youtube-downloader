@@ -26,13 +26,9 @@ model Download {
   videoId String
   isDownloaded Boolean @default(false)
   date Int
-}
 
-enum DownloadType {
-  audio
-  video
+  PlaylistItem PlaylistItem[]
 }
-
 
 model Proxy {
   id Int @id
@@ -41,6 +37,37 @@ model Proxy {
   protocol Protocol
   isActive Boolean @default(true)
 }
+
+
+model Playlist {
+  id String @id
+  title String
+  description String?
+  imageUrl String
+  numberOfItems Int?
+  autoUpdate Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  PlaylistItem PlaylistItem[]
+}
+
+model PlaylistItem {
+  id Int @id @default(autoincrement())
+  playlistId String
+  downloadId Int
+  createdAt DateTime @default(now())
+
+  playlist Playlist @relation(fields: [playlistId], references: [id])
+  download Download @relation(fields: [downloadId], references: [id])
+}
+
+enum DownloadType {
+  audio
+  video
+  playlist
+}
+
 
 enum Protocol {
   HTTP
