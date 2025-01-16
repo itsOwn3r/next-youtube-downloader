@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import getProxy from "@/lib/getProxy";
 import { NextRequest, NextResponse } from "next/server";
 import fetch from "node-fetch";
 
@@ -35,7 +36,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "You must provide valid data!" }, { status: 400 });
     }
 
+      const proxy = await getProxy();
+    
+
     const getPlaylist = await fetch(link, {
+      agent: proxy ? proxy : undefined,
       headers: {
         'Host': 'www.youtube.com',
         'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
@@ -100,6 +105,7 @@ export async function POST(req: NextRequest) {
 
       const getPlaylistVideos = await fetch('https://www.youtube.com/youtubei/v1/browse?key', {
         method: 'POST',
+        agent: proxy ? proxy : undefined,
         headers: {
           'Host': 'www.youtube.com',
           'content-type': 'application/json',
