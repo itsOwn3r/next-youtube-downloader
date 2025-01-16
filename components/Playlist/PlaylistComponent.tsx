@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
   
 
 
@@ -40,6 +41,7 @@ const PlaylistComponent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const router = useRouter();
   
   const [title, setTitle] = useState("");
   const [autoUpdate, setAutoUpdate] = useState<boolean>(true);
@@ -63,14 +65,6 @@ const PlaylistComponent = () => {
         body: JSON.stringify({ autoUpdate, link, title }),
       });
 
-      if (!response.ok) {
-        toast.error("Failed to fetch playlist info...", {
-            duration: 4000,
-            className: "text-xl"
-          });
-          return;
-      }
-
       const data = await response.json();
 
       if (data.success) {
@@ -79,6 +73,7 @@ const PlaylistComponent = () => {
             className: "text-xl"
           });
           setIsModalOpen(false);
+          router.refresh();
       } else {
         toast.error(data.message, {
             duration: 4000,

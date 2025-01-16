@@ -17,3 +17,17 @@ export const taskSchema = z.object({
 })
 
 export type Task = z.infer<typeof taskSchema>
+
+export const playlistSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  url: z.string(),
+  description: z.string().nullable(),
+  numberOfItems: z.number().optional(),
+  autoUpdate: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  imageUrl: z.string(),
+})
+
+export type Playlist = z.infer<typeof playlistSchema>

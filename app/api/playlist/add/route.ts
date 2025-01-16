@@ -1,5 +1,4 @@
 import db from "@/lib/db";
-import { writeFileSync } from "fs";
 import { NextRequest, NextResponse } from "next/server";
 import fetch from "node-fetch";
 
@@ -49,67 +48,42 @@ export async function POST(req: NextRequest) {
     });
 
     const responseOfPlaylist = await getPlaylist.text();
-    // writeFileSync("./responseOfPlaylist.html", responseOfPlaylist);
 
-    // const trackingParamsMatch = responseOfPlaylist.match(/"request":"CONTINUATION_REQUEST_TYPE_BROWSE"}}}}],"trackingParams":"(.*?)"/);
-    // const trackingParams = trackingParamsMatch ? trackingParamsMatch[1] : null;
-
+    
     const totalVideosMatch = responseOfPlaylist.match(/"content":"(\d+) videos"/);
     const totalVideos = totalVideosMatch ? totalVideosMatch[1] : null;
-    console.log("totalVideos ", totalVideos);
+ 
 
 
     
-    const getContent = responseOfPlaylist.match(/"itemSectionRenderer":{"contents":(.*?)"continuationItemRenderer"/);
+    let playListId = link.split("list=")[1];
+
+    if (playListId.includes("&")) {
+      playListId = playListId.split("&")[0];
+    }
+
+    const dataHolder: {videoId: string, title: string, videoLength: string, uploader: string}[] = [];
+
+    
+        
+    const getContent = responseOfPlaylist.match(new RegExp(`\\[{"itemSectionRenderer":{"contents":\\[{"playlistVideoListRenderer":{"contents":(.*),"playlistId":"${playListId}","isEditable"`));
     const contentsTemplate = getContent ? getContent[1] : null;
-    
-    // writeFileSync("./hugeResponse.json", JSON.stringify(contentsTemplate));
+
+        
     if (!contentsTemplate) {
       return NextResponse.json({ success: false, message: "Item section contentsTemplate not found!" }, { status: 400 });
     }
 
-    const dataHolder: {videoId: string, title: string, videoLength: string, uploader: string}[] = [];
-    
-    const indexOfTracking = contentsTemplate.lastIndexOf(`],"trackingParams"`);
-    
-    let stringifiedContent = contentsTemplate.slice(0, indexOfTracking + 1);
-    
-    stringifiedContent = stringifiedContent.replace(`[{"playlistVideoListRenderer":{"contents":`, "");
-    const findTail = stringifiedContent.lastIndexOf(`}]}}},{"playlistVideoRenderer"`);
-    const removeTail = stringifiedContent.slice(0, findTail + 5);
-    
-    const finalString = `${removeTail}]`
-    // writeFileSync("./hugeResponse.json", finalString);
 
-    const overStringift = JSON.stringify(`${finalString}`)
-    console.log("Chaaaaaaak");
-    const content = JSON.parse(overStringift);
-    // writeFileSync("./hugeResponse.json", content);
-    
-    const finalContent = JSON.parse(content);
-    
-    console.log("Length pf content: ",  finalContent.length);
+    const finalContent = JSON.parse(contentsTemplate);
+
+
     for (const item of finalContent) {
-      dataHolder.push({ videoId: item.playlistVideoRenderer?.videoId, title: item.playlistVideoRenderer?.title.runs[0].text, videoLength: item.playlistVideoRenderer?.lengthText.simpleText, uploader: item.playlistVideoRenderer?.shortBylineText.runs[0].text })
-    }
-      console.log("Chiiiik");
-    
-    // console.log("trackingParams ", trackingParams);
-    
-    // const tokenMatch = responseOfPlaylist.match(/"continuationCommand":{"token":"(.*?)"/);
-    // const token = tokenMatch ? tokenMatch[1] : null;
-
-
-    // if (!trackingParams || !token) {
-    //   return NextResponse.json({ success: false, message: "Required parameters not found in the playlist response!" }, { status: 400 });
-    // }
-
-    if (Number(totalVideos) < 99) {
-      // TODO
-      return NextResponse.json({ success: false });
+      dataHolder.unshift({ videoId: item.playlistVideoRenderer?.videoId, title: item.playlistVideoRenderer?.title.runs[0].text, videoLength: item.playlistVideoRenderer?.lengthText.simpleText, uploader: item.playlistVideoRenderer?.shortBylineText.runs[0].text })
     }
 
-    const numberOfLoops = Math.ceil(Number(totalVideos) / 100);
+
+    const numberOfLoops = Number(totalVideos) < 100 ? 0 : Math.ceil((Number(totalVideos) - 99) / 100);
 
     const loops = Array.from({ length: numberOfLoops }, (_, i) => i + 1);
 
@@ -118,19 +92,10 @@ export async function POST(req: NextRequest) {
     let token = await getToken(responseOfPlaylist);
     
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const item of loops) {
-          
-
-    console.log("Token is ");
-    console.log(token);
-    console.log("Hehe");
-    console.log(trackingParams);
-    console.log("Ok");
+    for (const _ of loops) {
 
     if (!token || !trackingParams) {
-      console.log("No Valid Data");
       break;
-      return NextResponse.json({ success: false });
     }
 
       const getPlaylistVideos = await fetch('https://www.youtube.com/youtubei/v1/browse?key', {
@@ -173,38 +138,70 @@ export async function POST(req: NextRequest) {
       const response = await getPlaylistVideos.json();
 
       const data = response.onResponseReceivedActions[0].appendContinuationItemsAction.continuationItems || [];
-      console.log("Length pf data: ", data.length);
+
       for (const item of data) {
-        dataHolder.push({ title: item.playlistVideoRenderer?.title.runs[0].text , uploader: item.playlistVideoRenderer?.shortBylineText.runs[0].text , videoId: item.playlistVideoRenderer?.videoId , videoLength: item.playlistVideoRenderer?.lengthText.simpleText });
+        dataHolder.unshift({ title: item.playlistVideoRenderer?.title.runs[0].text , uploader: item.playlistVideoRenderer?.shortBylineText.runs[0].text , videoId: item.playlistVideoRenderer?.videoId , videoLength: item.playlistVideoRenderer?.lengthText.simpleText });
       }
-     // 🌞
-      // writeFileSync("./contentResponse.json", JSON.stringify(response));
+
       const stringifiedContents = JSON.stringify(response);
       
       trackingParams = await getTrackingParamsInLoop(stringifiedContents);
 
       token = await getToken(stringifiedContents);
 
-
     }
 
-    
-    // writeFileSync("./AHaHaResponse.json", JSON.stringify(dataHolder));
-    // console.log(content);
+    const imageUrl = `https://i.ytimg.com/vi/${dataHolder[dataHolder.length - 1].videoId}/hqdefault.jpg`;
 
 
-    // console.log(contentsTemplate);
+    const createPlaylist = await db.playlist.create({
+      data: {
+        id: playListId,
+        title,
+        autoUpdate,
+        url: link,
+        numberOfItems: totalVideos ? Number(totalVideos) : 0,
+        imageUrl: imageUrl ? imageUrl : "",
+      }
+    });
 
 
-    return NextResponse.json({ success: true });
+    const items: {videoId: string, title: string, videoLength: string, uploader: string, playlistId: string }[] = dataHolder
+      .filter(item => item !== undefined && item.videoId && item.title && item.uploader && item.videoLength)
+      .map(item => ({
+        videoId: item.videoId,
+        title: item.title,
+        videoLength: item.videoLength,
+        uploader: item.uploader,
+        playlistId: createPlaylist.id,
+      }));
+
+
+    const createPlaylistItems = await db.playlistItem.createMany({
+      data: items
+    });
+
+
+    return NextResponse.json({ success: true, count: createPlaylistItems.count });
   } catch (error) {
     console.log((error as Error).message);
-    return NextResponse.json(
-      {
-        success: false,
+    if ((error as Error).message.includes("Unique constraint failed on the constraint")) {
+      
+      return NextResponse.json(
+        {
+          success: false,
+        message: "Playlist already exist!",
+      },
+      { status: 400 }
+    );      
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
         message: (error as Error).message,
       },
       { status: 400 }
     );
+  }
   }
 }

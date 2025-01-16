@@ -60,11 +60,11 @@ model PlaylistItem {
   videoLength String
   uploader String
   playlistId String
-  downloadId Int
+  downloadId Int?
   createdAt DateTime @default(now())
 
   playlist Playlist @relation(fields: [playlistId], references: [id])
-  download Download @relation(fields: [downloadId], references: [id])
+  download Download? @relation(fields: [downloadId], references: [id])
 }
 
 enum DownloadType {
