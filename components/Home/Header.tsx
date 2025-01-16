@@ -54,6 +54,9 @@ const Header = ({ proxy }: ProxyProps) => {
                     YT Downloader
                 </Link>
                 <div className="flex items-center space-x-3 md:space-x-8">
+                    <Link href="/playlists" className="text-gray-900 dark:text-white hover:underline">
+                        Playlists
+                    </Link>
                     <Link href="/history" className="text-gray-900 dark:text-white hover:underline">
                         History
                     </Link>
