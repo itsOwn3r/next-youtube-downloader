@@ -31,7 +31,7 @@ TODO:
 
 - ✅ Database connection and saving a history of downloaded videos/audios
 
-- Support for adding playlist
+- ✅ Support for adding playlist
 
 - Setting a default resolution for downloading videos
 
