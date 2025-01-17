@@ -31,3 +31,16 @@ export const playlistSchema = z.object({
 })
 
 export type Playlist = z.infer<typeof playlistSchema>
+
+export const playlistItemSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  videoId: z.string(),
+  videoLength: z.string(),
+  uploader: z.string(),
+  playlistId: z.string(),
+  downloadId: z.number().nullable(),
+  createdAt: z.string(),
+})
+
+export type PlaylistItem = z.infer<typeof playlistItemSchema>
