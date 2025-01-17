@@ -24,6 +24,7 @@ import { playlistSchema } from "@/components/data/schema"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import { useState } from "react"
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -32,7 +33,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActionsForPlaylist<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const playlist = playlistSchema.parse(row.original);
@@ -69,6 +70,37 @@ export function DataTableRowActionsForPlaylist<TData>({
 
   }
 
+  const refetchPlaylist = async (id: string) => {
+
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(`/api/playlist/refetch/${id}`);
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(data.message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+          router.refresh();
+      } else {
+        toast.error(data.message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+      }   
+    } catch (error) {
+      toast.error((error as Error).message, {
+        duration: 4000,
+        className: "text-xl"
+      });
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -81,6 +113,7 @@ export function DataTableRowActionsForPlaylist<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuItem onClick={() => refetchPlaylist(playlist.id)} disabled={isLoading} className="cursor-pointer flex justify-center items-center bg-lime-800 text-base hover:text-xl hover:bg-green-500">ReFetch</DropdownMenuItem>
         <DropdownMenuItem><Link href={playlist.imageUrl} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
         <DropdownMenuItem><Link href={`https://www.youtube.com/playlist?list=${playlist.id}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => {
@@ -106,11 +139,11 @@ export function DataTableRowActionsForPlaylist<TData>({
         </DropdownMenuSub> */}
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={deletePlaylist} className="cursor-pointer">
+        <DropdownMenuItem disabled={isLoading} onClick={deletePlaylist} className="cursor-pointer">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
-        {playlist.autoUpdate && <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
+        {playlist.autoUpdate && <DropdownMenuItem disabled={isLoading} onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
           Delete w/ File
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>}
