@@ -21,7 +21,6 @@ import {
 
 // import { labels } from "../data/data"
 import { playlistSchema } from "@/components/data/schema"
-import { openDirectory } from "@/components/Home/openDirectory"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
@@ -36,17 +35,17 @@ export function DataTableRowActionsForPlaylist<TData>({
 
   const router = useRouter();
 
-  const task = playlistSchema.parse(row.original);
+  const playlist = playlistSchema.parse(row.original);
 
 
-  const deleteFromHistory = async () => {
+  const deletePlaylist = async () => {
 
-    const response = await fetch(`/api/history/delete/${task.id}`, {
+    const response = await fetch(`/api/playlist/delete/${playlist.id}`, {
       method: "DELETE"
     });
 
     if (response.ok) {
-      toast.success("Item removed from histroy.", { className: "text-xl" });
+      toast.success("Playlist deleted. No file will be deleted.", { className: "text-xl" });
       router.refresh();
     } else {
       toast.error("Something went wrong!", { className: "text-xl" });
@@ -57,7 +56,7 @@ export function DataTableRowActionsForPlaylist<TData>({
 
   const deleteFromHistoryAndFiles = async () => {
 
-    const response = await fetch(`/api/history/delete/file/${task.id}`, {
+    const response = await fetch(`/api/history/delete/file/${playlist.id}`, {
       method: "DELETE"
     });
 
@@ -82,12 +81,10 @@ export function DataTableRowActionsForPlaylist<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {task.autoUpdate && (<><DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(``, "")}>Open File</DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory("videos")}>Open Folder</DropdownMenuItem></>)}
-        <DropdownMenuItem><Link href={task.imageUrl} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
-        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.id}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={playlist.imageUrl} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://www.youtube.com/playlist?list=${playlist.id}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => {
-          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${task.id}`)
+          navigator.clipboard.writeText(`https://www.youtube.com/playlist?list=${playlist.id}`)
             toast.success("Link copied to clipboard.", { className: "text-lg" })  
           }
           }>Copy link</DropdownMenuItem>
@@ -98,7 +95,7 @@ export function DataTableRowActionsForPlaylist<TData>({
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={task.label}>
+            <DropdownMenuRadioGroup value={playlist.label}>
               {labels.map((label) => (
                 <DropdownMenuRadioItem key={label.value} value={label.value}>
                   {label.label}
@@ -109,11 +106,11 @@ export function DataTableRowActionsForPlaylist<TData>({
         </DropdownMenuSub> */}
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={deleteFromHistory} className="cursor-pointer">
+        <DropdownMenuItem onClick={deletePlaylist} className="cursor-pointer">
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
-        {task.autoUpdate && <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
+        {playlist.autoUpdate && <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
           Delete w/ File
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>}

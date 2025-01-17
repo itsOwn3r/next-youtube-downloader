@@ -4,7 +4,7 @@ import { columns } from "@/components/PlaylistItem/columns";
 import { DataTable } from "@/components/Playlist/data-table";
 import Header from "@/components/Home/Header";
 import db from "@/lib/db";
-import PlaylistComponent from "@/components/Playlist/PlaylistComponent";
+import PlaylistItemComponent from "@/components/PlaylistItem/PlaylistItemComponent";
 
 export const metadata: Metadata = {
   title: "Playlists - YouTube Downloader",
@@ -25,6 +25,12 @@ export default async function HistoryPage({ params }: { params: { id: string } }
 
   const playlist = await getPlaylist(id);
 
+  const playlistName = await db.playlist.findUnique({
+    where: {
+      id: id
+    }
+  })
+
   const proxy = await db.proxy.findUnique({
     where: {
       id: 0,
@@ -43,18 +49,19 @@ export default async function HistoryPage({ params }: { params: { id: string } }
                 <div className="flex items-center justify-between space-y-2">
                   <div>
                     <h2 className="text-2xl font-bold tracking-tight">
-                      Playlists
+                      {playlistName?.title}
                     </h2>
                     <p className="text-muted-foreground">
-                      Here&apos;s a list of Playlists where you can keep track of them!
+                      You have {playlistName?.numberOfItems} videos in this playlist!
                     </p>
                   </div>
 
                   <div>
-                    <PlaylistComponent />
+                    <PlaylistItemComponent id={playlistName?.id || "noID"} titleNonMutate={playlistName?.title || ""} autoUpdateNonMutate={playlistName?.autoUpdate || true} />
                   </div>
+                  
                 </div>
-                <DataTable data={playlist} columns={columns} />
+                <DataTable type="playlistItems" data={playlist} columns={columns} />
               </div>
             </section>
           </div>

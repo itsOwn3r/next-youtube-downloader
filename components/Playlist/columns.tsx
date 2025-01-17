@@ -68,7 +68,7 @@ export const columns: ColumnDef<Playlist>[] = [
       return (
         <div className="flex items-center">
 
-          <span>{(new Date(date as Date)).toLocaleDateString("en") + " " + (new Date(date as Date)).getHours() + ":" + (new Date(date as Date)).getMinutes()}</span>
+          <span>{new Date((date as Date)).toLocaleDateString("en", { dateStyle: "medium" })} {new Date((date as Date)).toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit", hour12: false })}</span>
         </div>
       )
     },

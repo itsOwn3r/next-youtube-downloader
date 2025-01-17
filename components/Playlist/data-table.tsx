@@ -30,12 +30,14 @@ import { DataTableToolbar } from "@/components/Playlist/data-table-toolbar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[],
+  type?: "histroy" | "playlist" | "playlistItems"
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  type
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -43,8 +45,9 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
+  const defaultSorting = type === "playlistItems" ? "createdAt" : "title"
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "title", desc: true }
+    { id: defaultSorting, desc: true }
   ])
 
   const table = useReactTable({
