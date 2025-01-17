@@ -5,6 +5,9 @@ export async function GET() {
   try {
 
     const findPlaylist = await db.playlist.findMany({
+      where: {
+        isDeleted: false
+      },
       orderBy: {
         createdAt: "desc"
       }

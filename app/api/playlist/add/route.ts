@@ -67,6 +67,41 @@ export async function POST(req: NextRequest) {
       playListId = playListId.split("&")[0];
     }
 
+    const findDeletedPlaylist = await db.playlist.findFirst({
+      where: {
+        id: playListId,
+        isDeleted: true
+      }
+    })
+
+    if (findDeletedPlaylist) {
+      
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const enablePlaylist = await db.playlist.update({
+        where: {
+          id: findDeletedPlaylist.id,
+          isDeleted: true
+        },
+        data: {
+          isDeleted: false
+        }
+      })
+
+      return NextResponse.json({ success: true, message: "This playlist was deleted before! And now activated! Remember to refetch!" }, { status: 200 });      
+    }
+
+
+    
+    const findPlaylist = await db.playlist.findFirst({
+      where: {
+        id: playListId
+      }
+    })
+
+    if (findPlaylist) {
+      return NextResponse.json({ success: false, message: "Playlist already exist!" }, { status: 400 });      
+    }
+
     const dataHolder: {videoId: string, title: string, videoLength: string, uploader: string}[] = [];
 
     
@@ -191,16 +226,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, count: createPlaylistItems.count });
   } catch (error) {
     console.log((error as Error).message);
-    if ((error as Error).message.includes("Unique constraint failed on the constraint")) {
-      
-      return NextResponse.json(
-        {
-          success: false,
-        message: "Playlist already exist!",
-      },
-      { status: 400 }
-    );      
-    } else {
       return NextResponse.json(
         {
           success: false,
@@ -208,6 +233,5 @@ export async function POST(req: NextRequest) {
       },
       { status: 400 }
     );
-  }
   }
 }

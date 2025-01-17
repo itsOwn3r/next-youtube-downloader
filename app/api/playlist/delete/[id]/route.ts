@@ -1,7 +1,7 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, params: { id: string }) {
+export async function DELETE(req: Request, params: { id: string }) {
   try {
 
     const { id } = await params;
@@ -10,14 +10,24 @@ export async function GET(req: Request, params: { id: string }) {
       where:{
         id,
         isDeleted: false
-      },
-      include: {
-        PlaylistItem: true
       }
     })
 
-    return NextResponse.json({ success: true, data: findPlaylist?.PlaylistItem });
+    const deletePlaylist = await db.playlist.update({
+      where: {
+        id: findPlaylist?.id
+      },
+      data: {
+        isDeleted: true
+      }
+    })
+
+    console.log(deletePlaylist);
+
+
+    return NextResponse.json({ success: true, message: "Playlist deleted!" });
   } catch (error) {
+    console.log((error as Error).message);
     return NextResponse.json(
       {
         success: false,

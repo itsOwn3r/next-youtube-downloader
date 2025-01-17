@@ -173,7 +173,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const updatePlaylist = await db.playlist.update({
       where: {
-        id: findPlaylist?.id
+        id: findPlaylist?.id,
+        isDeleted: false
       },
       data: {
         numberOfItems: totalVideos ? Number(totalVideos) : 0,
