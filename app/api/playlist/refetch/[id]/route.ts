@@ -167,9 +167,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const findPlaylist = await db.playlist.findFirst({
       where: {
-        id
+        id,
+        isDeleted: false
       }
     })
+
+    if (!findPlaylist) {
+      return NextResponse.json({ success: false, message: "Playlist not found!" });
+    }
 
     const updatePlaylist = await db.playlist.update({
       where: {

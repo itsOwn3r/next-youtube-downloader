@@ -5,6 +5,7 @@ import { DataTable } from "@/components/Playlist/data-table";
 import Header from "@/components/Home/Header";
 import db from "@/lib/db";
 import PlaylistItemComponent from "@/components/PlaylistItem/PlaylistItemComponent";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Playlists - YouTube Downloader",
@@ -27,9 +28,14 @@ export default async function HistoryPage({ params }: { params: { id: string } }
 
   const playlistName = await db.playlist.findUnique({
     where: {
-      id: id
+      id: id,
+      isDeleted: false
     }
   })
+
+  if (!playlistName) {
+    return notFound();
+  }
 
   const proxy = await db.proxy.findUnique({
     where: {
