@@ -26,10 +26,10 @@ async function downloadFile(url: string, path: string, type: "video" | "audio", 
         downloadedSize += chunk.length;
         const progress = (downloadedSize / totalSize) * 100;
         if (type === "video" && !isDownloaded.video && writer.desiredSize !== null) {
-            writer.write(`Downloading video: ${progress.toFixed(2)}%\n\n`);
+            writer.write(`${progress.toFixed(2)}`);
         }
         if (type === "audio" && audioOnly && !isDownloaded.video && writer.desiredSize !== null) {
-            writer.write(`Downloading Audio: ${progress.toFixed(2)}%\n\n`);
+            writer.write(`${progress.toFixed(2)}`);
         }
     });
 
@@ -81,7 +81,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
         const { readable, writable } = new TransformStream();
         const writer = writable.getWriter();
-        writer.write('Connection established...');
 
         const isDownloaded = { video: false, audio: false };
 

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Keep track of Videos in a playlist.",
 };
 
-async function getPlaylist(id: string) {
+export async function getPlaylist(id: string) {
   const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
   const response = await fetch(`${devUrl}/api/playlist/${id}`);
   const data = await response.json();

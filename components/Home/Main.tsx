@@ -162,7 +162,7 @@ const Main = () => {
       const { value, done } = await reader.read();
       if (done) break;
 
-      if (value.includes("100.00%")) {
+      if (value.includes("100.00")) {
         finishDownload((response?.videoId as string));
         if (folder === "audios") {
             // setAudioOnly(false);
@@ -184,7 +184,12 @@ const Main = () => {
           setIsDownloadCompleted(true);
         }, 5000);
       } else {
-        setDownloaded(value);
+        if (folder === "audios") {
+          setDownloaded(`Downloading Audio: ${value}% \n \n`);
+        } else { 
+          setDownloaded(`Downloading video: ${value}% \n \n`);
+        }
+
       }
     }
         
