@@ -62,6 +62,7 @@ model PlaylistItem {
   uploader String
   playlistId String
   downloadId Int?
+  type DownloadType @default(video)
   createdAt DateTime @default(now())
 
   playlist Playlist @relation(fields: [playlistId], references: [id])

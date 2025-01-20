@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export async function getPlaylist(id: string) {
   const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
-  const response = await fetch(`${devUrl}/api/playlist/${id}`);
+  const response = await fetch(`${devUrl}/api/playlist/${id}`, { method: "POST", body: JSON.stringify({}) });
   const data = await response.json();
 
   return data.data;

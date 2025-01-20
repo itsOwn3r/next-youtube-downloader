@@ -19,12 +19,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useParams } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const DownloadPlaylist = () => {
     
   const [isOpen, setIsOpen] = useState(false);
   const [quality, setQuality] = useState<"360p" | "480p" | "720p" | "1080p">("480p");
 
+    const [isLoading, setIsLoading] = useState(false);
+  
+    const [downloaded, setDownloaded] = useState("");
+    const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
 
   const params = useParams();
 
@@ -39,16 +44,114 @@ const DownloadPlaylist = () => {
   console.log(quality);
 
   const downloadAllHandler = async () => {
-    const request = await fetch('/api/playlist/download', {
+    try {
+        // setIsOpen(false);
+        setIsLoading(true);
+
+    const request = await fetch(`/api/playlist/${id}`, {
       method: "POST",
-      body: JSON.stringify({ type: "All", id })
+      body: JSON.stringify({})
     })
 
     const data = await request.json();
-
+    
     console.log(data);
+
+    const itemsToDownload = data.data;
+
+    for (const item of itemsToDownload) {
+
+        const requestForDowload = await fetch(`/api/playlist/download`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/event-stream",
+              },
+            body: JSON.stringify({ videoId: item.videoId, quality, title: item.title, type: item.type, uploader: item.uploader })
+        });
+
+        if (!requestForDowload.body) {
+            toast.error("Something is wrong with request body!", {
+                duration: 4000,
+                className: "text-xl"
+              });
+          return;
+        }
+        const reader = requestForDowload.body
+          .pipeThrough(new TextDecoderStream())
+          .getReader();
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+    
+          if (value.includes("100.00")) {
+            finishDownload((item.videoId as string));
+            if (item.type === "audio") {
+                // setAudioOnly(false);
+                setDownloaded("Audio downloaded. Merging files...");
+                toast.success("Audio downloaded.", {
+                    duration: 4000,
+                    className: "text-xl"
+                });
+            } else {
+              setDownloaded("Video downloaded. Downloading audio and merging...");
+              toast.success("Video downloaded.", {
+                duration: 4000,
+                className: "text-xl"
+              });          
+            }
+    
+            setTimeout(() => {
+              setDownloaded("Download completed!");
+              setIsDownloadCompleted(true);
+            }, 5000);
+          } else {
+            if (item.type === "audio") {
+              setDownloaded(`Downloading Audio: ${value}% \n \n`);
+            } else { 
+              setDownloaded(`Downloading video: ${value}% \n \n`);
+            }
+    
+          }
+        }
+
+    }        
+    } catch (error) {
+        toast.error((error as Error).message);
+    } finally {
+        setIsLoading(false)
+    }
   }
 
+
+
+  const finishDownload = async (videoId: string) => {
+
+    if (!videoId) {
+      toast.error("Failed to mark download as 'Finished' in DB", {
+        duration: 4000,
+        className: "text-xl"
+      });
+      return;
+    }
+
+    try {
+
+    const response = await fetch("/api/finish", {
+      method: "POST",
+      body: JSON.stringify({ videoId }),
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const data = await response.json();
+
+    } catch (error) {
+        toast.error((error as Error).message, {
+            duration: 4000,
+            className: "text-xl"
+          });
+    }
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
     <DialogTrigger>

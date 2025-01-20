@@ -227,16 +227,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ success: true, count: createPlaylistItems.count, message: `${createPlaylistItems.count} ${createPlaylistItems.count > 1 ? "new videos" : "new video"} added!` });
   } catch (error) {
     console.log((error as Error).message);
-    if ((error as Error).message.includes("Unique constraint failed on the constraint")) {
-      
-      return NextResponse.json(
-        {
-          success: false,
-        message: "Playlist already exist!",
-      },
-      { status: 400 }
-    );      
-    } else {
       return NextResponse.json(
         {
           success: false,
@@ -244,6 +234,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       },
       { status: 400 }
     );
-  }
+
   }
 }
