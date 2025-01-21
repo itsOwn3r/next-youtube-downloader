@@ -33,7 +33,7 @@ TODO:
 
 - ✅ Support for adding playlist
 
-- Setting a default resolution for downloading videos
+- ✅ Setting a default resolution for downloading videos
 
   
 
