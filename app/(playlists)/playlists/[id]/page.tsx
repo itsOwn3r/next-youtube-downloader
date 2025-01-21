@@ -33,6 +33,13 @@ export default async function HistoryPage({ params }: { params: { id: string } }
     }
   })
 
+  const notDownloaded = await db.playlistItem.count({
+    where: {
+      playlistId: playlistName?.id,
+      downloadId: null
+    }
+  })
+
   if (!playlistName) {
     return notFound();
   }
@@ -64,7 +71,7 @@ export default async function HistoryPage({ params }: { params: { id: string } }
                       {playlistName?.title}
                     </h2>
                     <p className="text-muted-foreground">
-                      You have {playlistName?.numberOfItems} videos in this playlist!
+                    Total videos: {playlistName?.numberOfItems?.toLocaleString("en")} {notDownloaded === 0 ? " - All downloaded ✅" : <span>- Ready to download: <span className="underline underline-offset-8 text-lg text-center inline-flex">{notDownloaded} </span> videos!</span>}
                     </p>
                   </div>
 

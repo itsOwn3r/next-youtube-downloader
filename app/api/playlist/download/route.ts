@@ -67,7 +67,15 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
-    const { quality, title, type, uploader, videoId } = data;    
+    const { title, type, uploader, videoId } = data;    
+
+    const getQuality = await db.quality.findUnique({
+      where: {
+        id: 0
+      }
+    })
+
+    const quality = getQuality ? getQuality.quality : "480p";
 
 
         
@@ -152,7 +160,7 @@ export async function POST(req: Request) {
           });
           
           const ytApiDataWithURL = await ytApiResponseWithUrl.json();
-    // console.log(ytApiDataWithURL);
+          
     
         const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("audio") === true);
         const audioMedium = audios.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];

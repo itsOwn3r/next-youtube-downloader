@@ -14,18 +14,16 @@ import DownloadPlaylist from "@/components/Playlist/DownloadPlaylist";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
-  isVisible: boolean
-  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>
-  downloaded: string,
+  setIsDownloadCompleted: React.Dispatch<React.SetStateAction<boolean>>
   setDownloaded: React.Dispatch<React.SetStateAction<string>>
+  setVideoId: React.Dispatch<React.SetStateAction<string>>
 }
 
 export function DataTableToolbar<TData>({
   table,
-  isVisible,
-  setIsVisible,
-  downloaded,
-  setDownloaded
+  setIsDownloadCompleted,
+  setDownloaded,
+  setVideoId,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -63,7 +61,7 @@ export function DataTableToolbar<TData>({
       <DataTableViewOptions table={table} />
 
 
-    <DownloadPlaylist isVisible={isVisible} setIsVisible={setIsVisible} downloaded={downloaded} setDownloaded={setDownloaded} />
+    <DownloadPlaylist setIsDownloadCompleted={setIsDownloadCompleted} setDownloaded={setDownloaded} setVideoId={setVideoId} />
 
 
     </div>

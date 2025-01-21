@@ -20,7 +20,7 @@ export const columns: ColumnDef<PlaylistItem>[] = [
       return (
         <div className="flex items-center space-x-2">
           <Link className="size-12 relative" href={`https://i.ytimg.com/vi/${row.original.videoId}/hqdefault.jpg`} target="_blank" rel="noreferrer noopener"><Image className="rounded-xl shadow-shine" src={`/api/proxy/image?url=https://i.ytimg.com/vi/${row.original.videoId}/hqdefault.jpg?sqp=-oaymwEmCKgBEF5IWvKriqkDGQgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAE=&rs=AOn4CLA0fCn3GNRJT_l1C_8WpZ7T8Qo-aA`} fill sizes="100" alt={row.original.title} /></Link>
-          <Link href={`/playlists/${row.original.id}`} className="h-12 relative flex items-center"><span className="py-1 px-4 text-lg max-w-[500px] truncate hover:scale-105">{row.getValue("title")}</span></Link>
+          <Link href={`https://www.youtube.com/watch?v=${row.original.videoId}`} target="_blank" rel="noopener noreferrer" className="h-12 relative flex items-center"><span className="py-1 px-4 text-lg max-w-[500px] truncate hover:scale-105">{row.getValue("title")}</span></Link>
         </div>
       )
     },

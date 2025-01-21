@@ -68,7 +68,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         const saveToDatabase = await db.download.create({
             data: {
                 videoId,
-                title,
+                title: title.replaceAll(/[<>:*"\/\\|?*\x00-\x1F]/g, ""),
                 type: audioOnly ? "audio" : "video",
                 size,
                 uploader,

@@ -8,40 +8,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { cn } from '@/lib/utils';
 
-const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}: { isVisible: boolean, setIsVisible: React.Dispatch<React.SetStateAction<boolean>>, downloaded: string, setDownloaded: React.Dispatch<React.SetStateAction<string>> }) => {
-    
-  const [isOpen, setIsOpen] = useState(false);
-  const [quality, setQuality] = useState<"360p" | "480p" | "720p" | "1080p">("480p");
+const DownloadPlaylist = ({ setDownloaded, setVideoId, setIsDownloadCompleted }: { setIsDownloadCompleted: React.Dispatch<React.SetStateAction<boolean>>, setDownloaded: React.Dispatch<React.SetStateAction<string>>, setVideoId: React.Dispatch<React.SetStateAction<string>> }) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
-  
-    const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
+    const router = useRouter();
+
 
   const params = useParams();
 
   const { id } = params;
 
-
-  const switchChangeHandler = (e: "360p" | "480p" | "720p" | "1080p") => {
-    console.log(e);
-    setQuality(e);
-  }
-
-  console.log(quality);
 
   const downloadAllHandler = async () => {
     try {
@@ -54,19 +35,19 @@ const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}:
     })
 
     const data = await request.json();
-    
-    console.log(data);
 
     const itemsToDownload = data.data;
 
     for (const item of itemsToDownload) {
+
+      setVideoId(item.videoId);
 
         const requestForDowload = await fetch(`/api/playlist/download`, {
             method: "POST",
             headers: {
                 "Content-Type": "text/event-stream",
               },
-            body: JSON.stringify({ videoId: item.videoId, quality, title: item.title, type: item.type, uploader: item.uploader })
+            body: JSON.stringify({ videoId: item.videoId, title: item.title, type: item.type, uploader: item.uploader })
         });
 
         if (!requestForDowload.body) {
@@ -79,12 +60,13 @@ const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}:
         const reader = requestForDowload.body
           .pipeThrough(new TextDecoderStream())
           .getReader();
+          setIsDownloadCompleted(false);
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
     
           if (value.includes("100.00")) {
-            finishDownload((item.videoId as string));
+            await finishDownload(item.videoId, item.id, item.playlistId);
             if (item.type === "audio") {
                 // setAudioOnly(false);
                 // setDownloaded("Audio downloaded. Merging files...");
@@ -100,10 +82,11 @@ const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}:
               });          
             }
     
-            setTimeout(() => {
+            // setTimeout(() => {
               // setDownloaded("Download completed!");
               setIsDownloadCompleted(true);
-            }, 5000);
+              router.refresh();
+            // }, 5000);
           } else {
             if (item.type === "audio") {
               setDownloaded(`${value}%`);
@@ -124,7 +107,7 @@ const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}:
 
 
 
-  const finishDownload = async (videoId: string) => {
+  const finishDownload = async (videoId: string, itemId: number, playlistId: string) => {
 
     if (!videoId) {
       toast.error("Failed to mark download as 'Finished' in DB", {
@@ -138,7 +121,7 @@ const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}:
 
     const response = await fetch("/api/finish", {
       method: "POST",
-      body: JSON.stringify({ videoId }),
+      body: JSON.stringify({ videoId, itemId, playlistId }),
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -153,37 +136,17 @@ const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}:
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-    <DialogTrigger>
+
+    <div className='cursor-pointer' onClick={downloadAllHandler}>
       <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger asChild><div className="flex items-center justify-center rounded-md w-20 h-10 ml-4 bg-green-500 hover:bg-green-300 text-white"><Download className="!h-7 !w-7" /> </div></TooltipTrigger>
+            <TooltipTrigger asChild><div className={cn("flex items-center justify-center rounded-md w-20 h-10 ml-4 bg-green-500 hover:bg-green-300 text-white", isLoading && "animate-pulse")}><Download className="!h-7 !w-7" /> </div></TooltipTrigger>
             <TooltipContent>
               <p>Download all videos</p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider></DialogTrigger>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Are you ready to download all of this videos?</DialogTitle>
-        <DialogDescription>
-          Please don&apos;t close this tab while the app is downloading...
-          <br />
-          <br />
-          <span className="flex items-center justify-between gap-x-4 py-3 text-lg border-b">360p<Switch checked={quality === "360p"} onClick={() => switchChangeHandler("360p")} /></span>
-          <span className="flex items-center justify-between gap-x-4 py-3 text-lg border-b">480p<Switch checked={quality === "480p"} onClick={() => switchChangeHandler("480p")} /></span>
-          <span className="flex items-center justify-between gap-x-4 py-3 text-lg border-b">720p<Switch checked={quality === "720p"} onClick={() => switchChangeHandler("720p")} /></span>
-          <span className="flex items-center justify-between gap-x-4 py-3 text-lg border-b">1080p<Switch checked={quality === "1080p"} onClick={() => switchChangeHandler("1080p")} /></span>
-
-          <br />
-          <span className="flex justify-end gap-x-4 items-center">
-            <Button type="button" onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button className="flex items-center justify-center rounded-md bg-green-500 hover:bg-green-300 text-white text-lg py-5" onClick={downloadAllHandler}>Ok, Lets Go <span className="animate-pulse">🔥</span></Button>
-          </span>
-        </DialogDescription>
-      </DialogHeader>
-    </DialogContent>
-  </Dialog>
+        </TooltipProvider>
+    </div>
   )
 }
 

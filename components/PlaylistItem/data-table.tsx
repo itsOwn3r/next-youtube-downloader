@@ -29,13 +29,13 @@ import { DataTablePagination } from "@/components/History/data-table-pagination"
 import { DataTableToolbar } from "@/components/PlaylistItem/data-table-toolbar"
 import { useState } from "react"
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { videoId: string }, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[],
   type?: "histroy" | "playlist" | "playlistItems"
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { videoId: string }, TValue>({
   columns,
   data,
   type
@@ -73,14 +73,14 @@ export function DataTable<TData, TValue>({
 
 
     
+      const [videoId, setVideoId] = useState("");
       const [downloaded, setDownloaded] = useState("");
       const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
 
-      const [isVisible, setIsVisible] = useState(false);
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} downloaded={downloaded} setDownloaded={setDownloaded}  isVisible={isVisible} setIsVisible={setIsVisible}  />
+      <DataTableToolbar table={table} setDownloaded={setDownloaded} setIsDownloadCompleted={setIsDownloadCompleted} setVideoId={setVideoId} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -108,7 +108,7 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="transition-all"
-                  style={{ background: "linear-gradient(to right, #10a510 90%, transparent 0%) center/cover no-repeat" }}
+                  style={{ background:  ((videoId === row.original.videoId && isDownloadCompleted === false) ? `linear-gradient(to right, #10a510 ${downloaded}, transparent 0%) center/cover no-repeat` : "initial") }}
                 > 
                   {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
