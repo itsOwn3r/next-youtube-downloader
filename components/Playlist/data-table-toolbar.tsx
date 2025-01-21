@@ -5,7 +5,6 @@ import { Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DataTableViewOptions } from "@/components/PlaylistItem/data-table-view-options";
-import DownloadPlaylist from "./DownloadPlaylist"
 import { X } from "lucide-react";
 
 
@@ -54,7 +53,6 @@ export function DataTableToolbar<TData>({
       <DataTableViewOptions table={table} />
 
 
-    <DownloadPlaylist />
 
 
     </div>

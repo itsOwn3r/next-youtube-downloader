@@ -21,14 +21,14 @@ import { Switch } from "@/components/ui/switch";
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-const DownloadPlaylist = () => {
+const DownloadPlaylist = ({ isVisible, setIsVisible, downloaded, setDownloaded}: { isVisible: boolean, setIsVisible: React.Dispatch<React.SetStateAction<boolean>>, downloaded: string, setDownloaded: React.Dispatch<React.SetStateAction<string>> }) => {
     
   const [isOpen, setIsOpen] = useState(false);
   const [quality, setQuality] = useState<"360p" | "480p" | "720p" | "1080p">("480p");
 
     const [isLoading, setIsLoading] = useState(false);
+
   
-    const [downloaded, setDownloaded] = useState("");
     const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
 
   const params = useParams();
@@ -87,13 +87,13 @@ const DownloadPlaylist = () => {
             finishDownload((item.videoId as string));
             if (item.type === "audio") {
                 // setAudioOnly(false);
-                setDownloaded("Audio downloaded. Merging files...");
+                // setDownloaded("Audio downloaded. Merging files...");
                 toast.success("Audio downloaded.", {
                     duration: 4000,
                     className: "text-xl"
                 });
             } else {
-              setDownloaded("Video downloaded. Downloading audio and merging...");
+              // setDownloaded("Video downloaded. Downloading audio and merging...");
               toast.success("Video downloaded.", {
                 duration: 4000,
                 className: "text-xl"
@@ -101,14 +101,14 @@ const DownloadPlaylist = () => {
             }
     
             setTimeout(() => {
-              setDownloaded("Download completed!");
+              // setDownloaded("Download completed!");
               setIsDownloadCompleted(true);
             }, 5000);
           } else {
             if (item.type === "audio") {
-              setDownloaded(`Downloading Audio: ${value}% \n \n`);
+              setDownloaded(`${value}%`);
             } else { 
-              setDownloaded(`Downloading video: ${value}% \n \n`);
+              setDownloaded(`${value}%`);
             }
     
           }

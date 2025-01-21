@@ -1,20 +1,42 @@
 "use client"
 
 import { Table } from "@tanstack/react-table"
-import { X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DataTableViewOptions } from "@/components/History/data-table-view-options"
+import { DataTableViewOptions } from "@/components/PlaylistItem/data-table-view-options";
+
+import { X } from "lucide-react";
+import DownloadPlaylist from "@/components/Playlist/DownloadPlaylist";
+
+
+
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
+  isVisible: boolean
+  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>
+  downloaded: string,
+  setDownloaded: React.Dispatch<React.SetStateAction<string>>
 }
 
 export function DataTableToolbar<TData>({
   table,
+  isVisible,
+  setIsVisible,
+  downloaded,
+  setDownloaded
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
+  const isFiltered = table.getState().columnFilters.length > 0;
+
+
+  // console.log(table.setOptions({data: }));
+
+  // const handleDeleteRow = (rowId: string) => {
+  //   table.options.data = table.options.data.filter((row: any) => row.id !== rowId);
+  //   table.setData(table.options.data);
+  // };
+
 
   return (
     <div className="flex items-center justify-between">
@@ -39,6 +61,11 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
+
+
+    <DownloadPlaylist isVisible={isVisible} setIsVisible={setIsVisible} downloaded={downloaded} setDownloaded={setDownloaded} />
+
+
     </div>
   )
 }

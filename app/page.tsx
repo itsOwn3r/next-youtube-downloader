@@ -11,10 +11,16 @@ export default async function Home() {
     }
   })
 
+  const quality = await db.quality.findUnique({
+    where: {
+      id: 0
+    }
+  })
+
   return (
     <div className="size-full flex justify-between items-center flex-col min-h-[100dvh]">
       <div className="min-h-[15%] w-full">
-        <Header proxy={proxy} />
+        <Header proxy={proxy} quality={quality?.quality || "480p"} />
       </div>
         <Main />
       <div className="min-h-[15%]">

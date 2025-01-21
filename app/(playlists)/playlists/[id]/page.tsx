@@ -1,11 +1,11 @@
 import { Metadata } from "next";
 
 import { columns } from "@/components/PlaylistItem/columns";
-import { DataTable } from "@/components/Playlist/data-table";
 import Header from "@/components/Home/Header";
 import db from "@/lib/db";
 import PlaylistItemComponent from "@/components/PlaylistItem/PlaylistItemComponent";
 import { notFound } from "next/navigation";
+import { DataTable } from "@/components/PlaylistItem/data-table";
 
 export const metadata: Metadata = {
   title: "Playlists - YouTube Downloader",
@@ -43,10 +43,16 @@ export default async function HistoryPage({ params }: { params: { id: string } }
     },
   });
   
+  
+  const quality = await db.quality.findUnique({
+    where: {
+      id: 0
+    }
+  })
 
   return (
     <>
-      <Header proxy={proxy} />
+      <Header proxy={proxy} quality={quality?.quality || "480p"} />
       <main className="flex flex-1 flex-col">
         <div className="container-wrapper">
           <div className="container py-6">

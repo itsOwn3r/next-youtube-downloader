@@ -38,6 +38,11 @@ model Proxy {
   isActive Boolean @default(true)
 }
 
+model Quality {
+  id Int @id
+  quality String
+}
+
 
 model Playlist {
   id String @id

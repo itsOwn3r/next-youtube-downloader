@@ -3,9 +3,9 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Loader } from 'lucide-react';
-import Proxy from './Proxy';
+import Settings from './Settings';
 
-interface ProxyProps {
+interface SettingsProps {
 
     proxy: {
   
@@ -20,10 +20,12 @@ interface ProxyProps {
       isActive: boolean;
   
     } | null;
+
+    quality: string | "360p" | "480p" | "720p" | "1080p";
   
   }
 
-const Header = ({ proxy }: ProxyProps) => {
+const Header = ({ proxy, quality }: SettingsProps) => {
     
     const { theme, setTheme } = useTheme();
 
@@ -70,7 +72,7 @@ const Header = ({ proxy }: ProxyProps) => {
                     >
                     {theme === 'light' ? '🌙' : '☀️'}
                 </button>
-                <Proxy proxy={proxy} />
+                <Settings proxy={proxy} defaultQuality={quality} />
                     </div>
             </div>
         </header>

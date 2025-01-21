@@ -29,9 +29,15 @@ export default async function HistoryPage() {
   });
   
 
+  const quality = await db.quality.findUnique({
+    where: {
+      id: 0
+    }
+  })
+  
   return (
     <>
-      <Header proxy={proxy} />
+      <Header proxy={proxy} quality={quality?.quality || "480p"} />
       <main className="flex flex-1 flex-col">
         <div className="container-wrapper">
           <div className="container py-6">

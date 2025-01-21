@@ -26,25 +26,27 @@ import {
 } from "@/components/ui/table"
 
 import { DataTablePagination } from "@/components/History/data-table-pagination"
-import { DataTableToolbar } from "@/components/Playlist/data-table-toolbar"
+import { DataTableToolbar } from "@/components/PlaylistItem/data-table-toolbar"
+import { useState } from "react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[],
+  type?: "histroy" | "playlist" | "playlistItems"
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  type
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+
+  const defaultSorting = type === "playlistItems" ? "createdAt" : "title"
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "title", desc: true }
+    { id: defaultSorting, desc: true }
   ])
 
   const table = useReactTable({
@@ -67,11 +69,18 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  })
+  });
+
+
+    
+      const [downloaded, setDownloaded] = useState("");
+      const [isDownloadCompleted, setIsDownloadCompleted] = useState(false);
+
+      const [isVisible, setIsVisible] = useState(false);
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} downloaded={downloaded} setDownloaded={setDownloaded}  isVisible={isVisible} setIsVisible={setIsVisible}  />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -98,14 +107,16 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                >
+                  className="transition-all"
+                  style={{ background: "linear-gradient(to right, #10a510 90%, transparent 0%) center/cover no-repeat" }}
+                > 
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+                  <TableCell key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </TableCell>
                   ))}
                 </TableRow>
               ))
