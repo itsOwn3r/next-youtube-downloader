@@ -67,6 +67,7 @@ model PlaylistItem {
   uploader String
   playlistId String
   downloadId Int?
+  isDeleted Boolean @default(false)
   type DownloadType @default(video)
   createdAt DateTime @default(now())
 

@@ -12,6 +12,36 @@ import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 
+
+export const finishDownload = async (videoId: string, itemId: number, playlistId: string) => {
+
+  if (!videoId) {
+    toast.error("Failed to mark download as 'Finished' in DB", {
+      duration: 4000,
+      className: "text-xl"
+    });
+    return;
+  }
+
+  try {
+
+  const response = await fetch("/api/finish", {
+    method: "POST",
+    body: JSON.stringify({ videoId, itemId, playlistId }),
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const data = await response.json();
+
+  } catch (error) {
+      toast.error((error as Error).message, {
+          duration: 4000,
+          className: "text-xl"
+        });
+  }
+};
+
+
 const DownloadPlaylist = ({ setDownloaded, setVideoId, setIsDownloadCompleted }: { setIsDownloadCompleted: React.Dispatch<React.SetStateAction<boolean>>, setDownloaded: React.Dispatch<React.SetStateAction<string>>, setVideoId: React.Dispatch<React.SetStateAction<string>> }) => {
 
     const [isLoading, setIsLoading] = useState(false);
@@ -107,34 +137,7 @@ const DownloadPlaylist = ({ setDownloaded, setVideoId, setIsDownloadCompleted }:
 
 
 
-  const finishDownload = async (videoId: string, itemId: number, playlistId: string) => {
 
-    if (!videoId) {
-      toast.error("Failed to mark download as 'Finished' in DB", {
-        duration: 4000,
-        className: "text-xl"
-      });
-      return;
-    }
-
-    try {
-
-    const response = await fetch("/api/finish", {
-      method: "POST",
-      body: JSON.stringify({ videoId, itemId, playlistId }),
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const data = await response.json();
-
-    } catch (error) {
-        toast.error((error as Error).message, {
-            duration: 4000,
-            className: "text-xl"
-          });
-    }
-  };
-  
   return (
 
     <div className='cursor-pointer' onClick={downloadAllHandler}>

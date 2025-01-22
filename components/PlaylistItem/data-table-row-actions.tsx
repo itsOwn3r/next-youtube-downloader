@@ -9,22 +9,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  // DropdownMenuRadioGroup,
-  // DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  // DropdownMenuSub,
-  // DropdownMenuSubContent,
-  // DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// import { labels } from "../data/data"
 import { playlistItemSchema } from "@/components/data/schema"
-import { openDirectory } from "@/components/Home/openDirectory"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
+import { finishDownload } from "@/components/Playlist/DownloadPlaylist"
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
@@ -39,14 +32,15 @@ export function DataTableRowActionsForPlaylistItems<TData>({
   const task = playlistItemSchema.parse(row.original);
 
 
-  const deleteFromHistory = async () => {
+  const deleteFromHistory = async (id: number, playlistId: string) => {
 
-    const response = await fetch(`/api/history/delete/${task.id}`, {
-      method: "DELETE"
+    const response = await fetch(`/api/playlist/delete/item`, {
+      method: "DELETE",
+      body: JSON.stringify({ playlistId, id })
     });
 
     if (response.ok) {
-      toast.success("Item removed from histroy.", { className: "text-xl" });
+      toast.success("Item removed from playlist.", { className: "text-xl" });
       router.refresh();
     } else {
       toast.error("Something went wrong!", { className: "text-xl" });
@@ -55,19 +49,71 @@ export function DataTableRowActionsForPlaylistItems<TData>({
   }
 
 
-  const deleteFromHistoryAndFiles = async () => {
+  const downloadHandler = async (type: "audio" | "video") => {
+    try {
 
-    const response = await fetch(`/api/history/delete/file/${task.id}`, {
-      method: "DELETE"
+      const requestForDowload = await fetch(`/api/playlist/download`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "text/event-stream",
+          },
+          body: JSON.stringify({
+            videoId: task.videoId,
+            playlistId: task.playlistId,
+            id: task.id,
+            uploader: task.uploader,
+            title: task.title,
+            type
+          })
     });
 
-    if (response.ok) {
-      toast.success("File Deleted!", { className: "text-xl" });
-      router.refresh();
-    } else {
-      toast.error("Something went wrong!", { className: "text-xl" });
+    if (!requestForDowload.body) {
+        toast.error("Something is wrong with request body!", {
+            duration: 4000,
+            className: "text-xl"
+          });
+      return;
     }
+    
+    const reader = requestForDowload.body.pipeThrough(new TextDecoderStream()).getReader();
+      
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
 
+      if (value.includes("100.00")) {
+        await finishDownload(task.videoId, task.id, task.playlistId);
+        if (type === "audio") {
+
+            toast.success("Audio downloaded.", {
+                duration: 4000,
+                id: "first",
+                className: "text-xl"
+            });
+
+        } else {
+          toast.success("Video downloaded.", {
+            duration: 4000,
+            id: "first",
+            className: "text-xl"
+          });
+        }
+
+          router.refresh();
+
+      } else {
+        toast.loading(`${value}% Downloaded!`, {
+          id: "first",
+          duration: 4000,
+          className: "text-xl"
+        });
+      }
+
+
+    }
+    } catch (error) {
+      toast.error((error as Error).message, { className: "text-xl" });
+    }
   }
 
   return (
@@ -82,41 +128,20 @@ export function DataTableRowActionsForPlaylistItems<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(``, "")}>Open File</DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory("videos")}>Open Folder</DropdownMenuItem>
-        <DropdownMenuItem><Link href={`/api/proxy/image?url=https://i.ytimg.com/vi/${task.videoId}/hqdefault.jpg`} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
-        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.id}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => downloadHandler("video")}>Download Video</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => downloadHandler("audio")}>Download Audio</DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://i.ytimg.com/vi/${task.videoId}/hqdefault.jpg`} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => {
-          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${task.id}`)
+          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${task.videoId}`)
             toast.success("Link copied to clipboard.", { className: "text-lg" })  
           }
           }>Copy link</DropdownMenuItem>
-        <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
-        <DropdownMenuSeparator />
-
-        {/* TODO: change of Playlist
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={task.label}>
-              {labels.map((label) => (
-                <DropdownMenuRadioItem key={label.value} value={label.value}>
-                  {label.label}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub> */}
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={deleteFromHistory} className="cursor-pointer">
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
-          Delete w/ File
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={() => deleteFromHistory(task.id, task.playlistId)} className="cursor-pointer hover:bg-foreground/20">Remove from playlist</DropdownMenuItem>
+
       </DropdownMenuContent>
     </DropdownMenu>
   )

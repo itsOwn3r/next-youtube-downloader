@@ -92,21 +92,8 @@ export function DataTableRowActions<TData>({
           }
           }>Copy link</DropdownMenuItem>
         <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
+        
         <DropdownMenuSeparator />
-
-        {/* TODO: change of Playlist
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={task.label}>
-              {labels.map((label) => (
-                <DropdownMenuRadioItem key={label.value} value={label.value}>
-                  {label.label}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub> */}
 
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={deleteFromHistory} className="cursor-pointer">

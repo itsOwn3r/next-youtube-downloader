@@ -37,6 +37,7 @@ export async function POST(req: Request, params: { id: string }) {
           PlaylistItem: {
             where: {
               downloadId: null,
+              isDeleted: false
             },
             orderBy: {
               createdAt: "desc",
