@@ -11,7 +11,7 @@ type PlaylistItemType = {
   playlistId: string
 }[];
 
-export async function GET(req: NextRequest, { params }: { params: { id: string }}) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }>}){
 
   const getTrackingParams = async (text: string) => {
     const trackingParamsMatch = text.match(/"request":"CONTINUATION_REQUEST_TYPE_BROWSE"}}}}],"trackingParams":"(.*?)"/);
@@ -39,7 +39,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const { id } = await params;
 
-    console.log(id);
 
     if (!id) {
       return NextResponse.json({ success: false, message: "You must provide Playlist ID !" }, { status: 400 });
@@ -209,11 +208,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
       const idOfOldVideos = oldVideos.map(item => item.videoId);
 
-      console.log(idOfOldVideos);
 
       const uniqueData:PlaylistItemType = items.filter((item) => !idOfOldVideos.includes(item.videoId));
 
-      console.log(uniqueData);
 
       if (uniqueData.length === 0) {
         return NextResponse.json({ success: false, message: "No new video!" });        

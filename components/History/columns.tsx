@@ -12,14 +12,14 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 
 import { statuses } from "@/components/data/data"
-import { Task } from "@/components/data/schema"
+import { History } from "@/components/data/schema"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 import { CheckIcon, XIcon } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
-export const columns: ColumnDef<Task>[] = [
+export const columns: ColumnDef<History>[] = [
   {
     id: "select",
     header: ({ table }) => (

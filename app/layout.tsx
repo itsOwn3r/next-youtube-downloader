@@ -22,16 +22,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${karla.className} antialiased`}
-      >
+      <body className={`${karla.className} antialiased`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
-            disableTransitionOnChange
-          >
-                    <Toaster position="top-center" reverseOrder={false} />
+            disableTransitionOnChange >
+            <Toaster position="top-center" reverseOrder={false} />
             {children}
           </ThemeProvider>
       </body>

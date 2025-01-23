@@ -18,7 +18,7 @@ export async function POST() {
         id: 0,
         ip: "127.0.0.1",
         port: 443,
-        protocol: "http",
+        protocol: "HTTP",
         isActive: true
       }
     })

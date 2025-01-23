@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Keep track of Videos in a playlist.",
 };
 
-export default function ExamplesLayout({
+export default function PlaylistsLayout({
   children,
 }: {
   children: React.ReactNode;

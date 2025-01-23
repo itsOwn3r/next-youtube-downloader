@@ -8,7 +8,6 @@ export async function DELETE(req: Request) {
 
     const { playlistId, id } = data;
 
-console.log(id);
     if (!id || !playlistId) {
       return NextResponse.json({ success: false, message: "You must provide playlistId and playlistItemId!" }, { status: 400 });
     }

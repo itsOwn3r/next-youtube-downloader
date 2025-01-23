@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
 import { GlobeLock } from 'lucide-react';
-import { Switch } from '../ui/switch';
+import { Switch } from '@/components/ui/switch';
 
 
 interface MainProps {
@@ -260,7 +260,6 @@ const Proxy = ({ proxy, defaultQuality }: MainProps) => {
 
 
   const switchChangeHandler = (e: "360p" | "480p" | "720p" | "1080p") => {
-    console.log(e);
     setQuality(e);
   }
 
@@ -270,7 +269,7 @@ const Proxy = ({ proxy, defaultQuality }: MainProps) => {
     <DialogContent>
       <DialogDescription className='hidden'></DialogDescription>
       <DialogHeader>
-        <DialogTitle className="hidden">Set/Delete Peoxy</DialogTitle>
+        <DialogTitle className="hidden">Set/Delete Proxy</DialogTitle>
       </DialogHeader>
 
       <div className="flex w-full gap-x-2">
@@ -298,7 +297,7 @@ const Proxy = ({ proxy, defaultQuality }: MainProps) => {
 
           <Card className={cn(activeTab !== "proxy" && "hidden")}>
             <CardHeader>
-              <CardTitle>Set/Delete Peoxy</CardTitle>
+              <CardTitle>Set/Delete Proxy</CardTitle>
               <CardDescription>Proxy is now {proxy?.isActive ? <span className="text-base text-green-600">Activated!</span> : <span className="text-base text-red-500">Deactivated!</span>}</CardDescription>
               <Button disabled={isLoading} onClick={switchProxy} variant="outline" className={cn("text-lg text-white", proxy?.isActive ? "bg-red-500" : "bg-green-500")}>{proxy?.isActive ? "Deactivate" : "Activate"}</Button>
             </CardHeader>

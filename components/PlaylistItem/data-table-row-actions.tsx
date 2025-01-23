@@ -29,7 +29,7 @@ export function DataTableRowActionsForPlaylistItems<TData>({
 
   const router = useRouter();
 
-  const task = playlistItemSchema.parse(row.original);
+  const item = playlistItemSchema.parse(row.original);
 
 
   const deleteFromHistory = async (id: number, playlistId: string) => {
@@ -58,11 +58,11 @@ export function DataTableRowActionsForPlaylistItems<TData>({
             "Content-Type": "text/event-stream",
           },
           body: JSON.stringify({
-            videoId: task.videoId,
-            playlistId: task.playlistId,
-            id: task.id,
-            uploader: task.uploader,
-            title: task.title,
+            videoId: item.videoId,
+            playlistId: item.playlistId,
+            id: item.id,
+            uploader: item.uploader,
+            title: item.title,
             type
           })
     });
@@ -82,7 +82,7 @@ export function DataTableRowActionsForPlaylistItems<TData>({
       if (done) break;
 
       if (value.includes("100.00")) {
-        await finishDownload(task.videoId, task.id, task.playlistId);
+        await finishDownload(item.videoId, item.id, item.playlistId);
         if (type === "audio") {
 
             toast.success("Audio downloaded.", {
@@ -130,17 +130,17 @@ export function DataTableRowActionsForPlaylistItems<TData>({
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem className="cursor-pointer" onClick={() => downloadHandler("video")}>Download Video</DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => downloadHandler("audio")}>Download Audio</DropdownMenuItem>
-        <DropdownMenuItem><Link href={`https://i.ytimg.com/vi/${task.videoId}/hqdefault.jpg`} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
-        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${item.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => {
-          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${task.videoId}`)
+          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${item.videoId}`)
             toast.success("Link copied to clipboard.", { className: "text-lg" })  
           }
           }>Copy link</DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => deleteFromHistory(task.id, task.playlistId)} className="cursor-pointer hover:bg-foreground/20">Remove from playlist</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => deleteFromHistory(item.id, item.playlistId)} className="cursor-pointer hover:bg-foreground/20">Remove from playlist</DropdownMenuItem>
 
       </DropdownMenuContent>
     </DropdownMenu>

@@ -12,17 +12,19 @@ export const metadata: Metadata = {
   description: "Keep track of Videos in a playlist.",
 };
 
-export async function getPlaylist(id: string) {
-  const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
-  const response = await fetch(`${devUrl}/api/playlist/${id}`, { method: "POST", body: JSON.stringify({}) });
-  const data = await response.json();
 
-  return data.data;
-}
-
-export default async function HistoryPage({ params }: { params: { id: string } }) {
-
+const PlaylistPage = async ({params}: {params: Promise<{ id: string }>}) => {
+  
   const { id } = await params;
+
+
+  async function getPlaylist(id: string) {
+    const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
+    const response = await fetch(`${devUrl}/api/playlist/${id}`, { method: "POST", body: JSON.stringify({}) });
+    const data = await response.json();
+
+    return data.data;
+  }
 
   const playlist = await getPlaylist(id);
 
@@ -89,3 +91,6 @@ export default async function HistoryPage({ params }: { params: { id: string } }
     </>
   );
 }
+
+
+export default PlaylistPage;

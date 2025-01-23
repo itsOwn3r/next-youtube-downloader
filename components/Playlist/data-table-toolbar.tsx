@@ -20,14 +20,6 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0;
 
 
-  // console.log(table.setOptions({data: }));
-
-  // const handleDeleteRow = (rowId: string) => {
-  //   table.options.data = table.options.data.filter((row: any) => row.id !== rowId);
-  //   table.setData(table.options.data);
-  // };
-
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">

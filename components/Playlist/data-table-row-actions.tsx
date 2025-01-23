@@ -55,20 +55,6 @@ export function DataTableRowActionsForPlaylist<TData>({
   }
 
 
-  const deleteFromHistoryAndFiles = async () => {
-
-    const response = await fetch(`/api/history/delete/file/${playlist.id}`, {
-      method: "DELETE"
-    });
-
-    if (response.ok) {
-      toast.success("File Deleted!", { className: "text-xl" });
-      router.refresh();
-    } else {
-      toast.error("Something went wrong!", { className: "text-xl" });
-    }
-
-  }
 
   const refetchPlaylist = async (id: string) => {
 
@@ -121,7 +107,6 @@ export function DataTableRowActionsForPlaylist<TData>({
             toast.success("Link copied to clipboard.", { className: "text-lg" })  
           }
           }>Copy link</DropdownMenuItem>
-        <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
         
         <DropdownMenuSeparator />
 
@@ -130,10 +115,6 @@ export function DataTableRowActionsForPlaylist<TData>({
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
-        {playlist.autoUpdate && <DropdownMenuItem disabled={isLoading} onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
-          Delete w/ File
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>}
       </DropdownMenuContent>
     </DropdownMenu>
   )

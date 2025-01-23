@@ -9,19 +9,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  // DropdownMenuRadioGroup,
-  // DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  // DropdownMenuSub,
-  // DropdownMenuSubContent,
-  // DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// import { labels } from "../data/data"
-import { taskSchema } from "../data/schema"
-import { openDirectory } from "../Home/openDirectory"
+
+import { historySchema } from "@/components/data/schema"
+import { openDirectory } from "@/lib/openDirectory"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
@@ -36,12 +31,12 @@ export function DataTableRowActions<TData>({
 
   const router = useRouter();
 
-  const task = taskSchema.parse(row.original);
+  const history = historySchema.parse(row.original);
 
 
   const deleteFromHistory = async () => {
 
-    const response = await fetch(`/api/history/delete/${task.id}`, {
+    const response = await fetch(`/api/history/delete/${history.id}`, {
       method: "DELETE"
     });
 
@@ -57,7 +52,7 @@ export function DataTableRowActions<TData>({
 
   const deleteFromHistoryAndFiles = async () => {
 
-    const response = await fetch(`/api/history/delete/file/${task.id}`, {
+    const response = await fetch(`/api/history/delete/file/${history.id}`, {
       method: "DELETE"
     });
 
@@ -82,16 +77,15 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {task.isDownloaded && (<><DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`, task.type === "audio" ? `${task.fileName}.mp3` : `${task.fileName}.mp4`)}>Open File</DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${task.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem></>)}
-        <DropdownMenuItem><Link href={task.thumbnail} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
-        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${task.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
+        {history.isDownloaded && (<><DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${history.type === "audio" ? "audis" : "videos"}`, history.type === "audio" ? `${history.fileName}.mp3` : `${history.fileName}.mp4`)}>Open File</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => openDirectory(`${history.type === "audio" ? "audis" : "videos"}`)}>Open Folder</DropdownMenuItem></>)}
+        <DropdownMenuItem><Link href={history.thumbnail} target="_blank" rel="noopener noreferrer">Show thumbnail</Link></DropdownMenuItem>
+        <DropdownMenuItem><Link href={`https://www.youtube.com/watch?v=${history.videoId}`} target="_blank" rel="noopener noreferrer">View on YouTube</Link></DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" onClick={() => {
-          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${task.videoId}`)
+          navigator.clipboard.writeText(`https://www.youtube.com/watch?v=${history.videoId}`)
             toast.success("Link copied to clipboard.", { className: "text-lg" })  
           }
           }>Copy link</DropdownMenuItem>
-        <DropdownMenuItem>Add/Remove from playlist</DropdownMenuItem>
         
         <DropdownMenuSeparator />
 
@@ -100,7 +94,7 @@ export function DataTableRowActions<TData>({
           Delete
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
-        {task.isDownloaded && <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
+        {history.isDownloaded && <DropdownMenuItem onClick={deleteFromHistoryAndFiles} className="cursor-pointer">
           Delete w/ File
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>}

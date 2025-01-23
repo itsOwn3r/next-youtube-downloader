@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "A History of downloaded Videos and Audios.",
 };
 
-export default function ExamplesLayout({
+export default function HistoryLayout({
   children,
 }: {
   children: React.ReactNode;

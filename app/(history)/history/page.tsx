@@ -11,11 +11,16 @@ export const metadata: Metadata = {
 };
 
 async function getHistory() {
-  const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
-  const response = await fetch(`${devUrl}/api/history`);
-  const data = await response.json();
+  try {
+    const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
+    const response = await fetch(`${devUrl}/api/history`);
+    const data = await response.json();
 
-  return data.data;
+    return data.data;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return [];
+  }
 }
 
 export default async function HistoryPage() {
