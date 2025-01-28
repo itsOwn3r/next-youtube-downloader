@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         id: 0,
         ip,
         port,
-        protocol
+        protocol: protocol === "http" ? "HTTP" : "HTTPS"
       }
     })
 
