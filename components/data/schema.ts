@@ -24,8 +24,8 @@ export const playlistSchema = z.object({
   description: z.string().nullable(),
   numberOfItems: z.number().nullable(),
   autoUpdate: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   imageUrl: z.string(),
 })
 
