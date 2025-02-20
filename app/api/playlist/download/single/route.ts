@@ -161,10 +161,26 @@ export async function POST(req: Request) {
           
           const ytApiDataWithURL = await ytApiResponseWithUrl.json();
           
-    
-          const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string, audioTrack: { audioIsDefault: boolean } }) => (item.mimeType.includes("audio") === true && item.audioTrack.audioIsDefault === true));
-          const audioMedium = audios.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
-    
+          const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string, audioTrack: { audioIsDefault: boolean } }) => (item.mimeType.includes("audio") === true));
+
+          const originalAudio = audios.filter((item: { audioTrack: { audioIsDefault: boolean }}) => {
+            if (item.audioTrack === undefined) {
+              return false;
+            } else if (item.audioTrack.audioIsDefault === undefined) {
+              return false;
+            }
+            return true;
+        });
+      
+          let audioMedium;
+      
+          if (originalAudio.length !== 0) {
+            audioMedium = originalAudio.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
+          } else {
+            audioMedium = audios.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength)); 
+          }
+
+          
         const videos = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
      
         let video;
