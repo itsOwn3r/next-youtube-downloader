@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 async function getHistory() {
   try {
     const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
-    const response = await fetch(`${devUrl}/api/history`);
+    const response = await fetch(`${devUrl}/api/history`, { cache: 'no-store' });
     const data = await response.json();
 
     return data.data;

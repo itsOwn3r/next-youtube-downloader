@@ -22,10 +22,10 @@ export const playlistSchema = z.object({
   title: z.string(),
   url: z.string(),
   description: z.string().nullable(),
-  numberOfItems: z.number().optional(),
+  numberOfItems: z.number().nullable(),
   autoUpdate: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
   imageUrl: z.string(),
 })
 

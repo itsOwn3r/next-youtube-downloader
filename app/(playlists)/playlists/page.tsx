@@ -15,7 +15,7 @@ async function getPlaylists() {
   try {
 
     const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
-    const response = await fetch(`${devUrl}/api/playlist`);
+    const response = await fetch(`${devUrl}/api/playlist`, { cache: 'no-store' });
     const data = await response.json();
 
     return data.data;

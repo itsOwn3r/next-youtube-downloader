@@ -20,7 +20,7 @@ const PlaylistPage = async ({params}: {params: Promise<{ id: string }>}) => {
 
   async function getPlaylist(id: string) {
     const devUrl = process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:3000";
-    const response = await fetch(`${devUrl}/api/playlist/${id}`, { method: "POST", body: JSON.stringify({}) });
+    const response = await fetch(`${devUrl}/api/playlist/${id}`, { method: "POST", body: JSON.stringify({}), cache: "no-cache" });
     const data = await response.json();
 
     return data.data;
