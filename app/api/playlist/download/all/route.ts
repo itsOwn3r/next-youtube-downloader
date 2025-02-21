@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { exec } from 'child_process';
+import { videoByQuality } from "@/lib/videoByQuality";
 
 
 const streamPipeline = promisify(pipeline);
@@ -209,8 +210,7 @@ export async function GET(req: Request) {
           });
           
           const ytApiDataWithURL = await ytApiResponseWithUrl.json();
-          
-    
+
           const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string, audioTrack: { audioIsDefault: boolean } }) => (item.mimeType.includes("audio") === true));
 
           const originalAudio = audios.filter((item: { audioTrack: { audioIsDefault: boolean }}) => {
@@ -230,28 +230,60 @@ export async function GET(req: Request) {
             audioMedium = audios.filter((audio: { audioQuality: string, contentLength: string }) => audio.audioQuality === "AUDIO_QUALITY_MEDIUM").sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength)); 
           }
 
-          
+          if (audioMedium.length > 0) {
+            audioMedium = audioMedium[0]
+          }
+      
         const videos = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
      
-        let video;
-
-        if (quality === "360p") {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "360p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
-        } else if(quality === "480p") {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        let video = await videoByQuality(videos, quality);
         
-        } else if(quality === "720") {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
-        } else {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "1080p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        
+        // if (!video) {
+        //   const qualities = ["720", "360p", "1080p", "480p"];
+        //   for (const item of qualities) {
+        //     const fetchWithQuality = await videoByQuality(videos, item)
+        //     video = fetchWithQuality;
+        //   }
+        // }
+
+        const qualities = ["720", "360p", "1080p", "480p"];
+        let i = 0;
+        do {
+          video = await videoByQuality(videos, qualities[i]);
+          i++;
+        } while (!video && i < 4);
+
+        if (!video) {
+          return NextResponse.json({ success: false, message: "Finding quality failed!" })
         }
+
+        // if (quality === "360p") {
+        //   video = videoByQuality(videos, quality);
+        // } else if(quality === "480p") {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        
+        // } else if(quality === "720") {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        // } else {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "1080p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        // }
     
+        // if ((!video && quality === "480p")) {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        // } else if ((!video && quality === "720p")) {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        // } else if ((!video && quality === "360")) {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        // } else if ((!video && quality === "1080")) {
+        //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        // } 
+
         // const video360p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "360p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video480p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video720p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video1080p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "1080p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
-    
-    
+
         let thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
     
         const highQualityThumb = await fetch(thumbnail, { agent: proxy ? proxy : undefined });
@@ -283,10 +315,11 @@ export async function GET(req: Request) {
       isDownloaded = { video: false, audio: false };
 
       const thumbnailResponse = await fetch(thumbnail, { agent: proxy ? proxy : undefined });
-      
+
       const thumbnailPath = `./public/videos/${videoId}_thumbnail.jpg`;
       const thumbnailBuffer = await thumbnailResponse.buffer();
       await writeFile(thumbnailPath, thumbnailBuffer);
+
 
       if (type === "audio") {
         await downloadFile(audioMedium.url, `./public/videos/${videoId}_audio.webm`, "audio", isDownloaded, true, videoId, allItems);
@@ -302,7 +335,7 @@ export async function GET(req: Request) {
                         clearInterval(interval);
     
                         await mergeAudio(videoId, fileName);
-    
+
                         await unlink(`./public/videos/${videoId}_audio.webm`);
                         await unlink(`./public/videos/${videoId}_thumbnail.jpg`);
 
@@ -325,7 +358,7 @@ export async function GET(req: Request) {
                         // }
 
                         await mergeAudioVideo(`./public/videos/${videoId}.webm`, `./public/videos/${videoId}_audio.webm`, `./public/videos/${videoId}_thumbnail.jpg` , `./public/videos/${fileName}.mp4`);
-    
+                        
                         await unlink(`./public/videos/${videoId}.webm`);
                         await unlink(`./public/videos/${videoId}_audio.webm`);
                         await unlink(`./public/videos/${videoId}_thumbnail.jpg`);

@@ -9,6 +9,7 @@ import fetch from "node-fetch";
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { exec } from 'child_process';
+import { videoByQuality } from "@/lib/videoByQuality";
 
 
 const streamPipeline = promisify(pipeline);
@@ -183,18 +184,20 @@ export async function POST(req: Request) {
           
         const videos = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
      
-        let video;
+     
+        let video = await videoByQuality(videos, quality);
 
-        if (quality === "360p") {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "360p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
-        } else if(quality === "480p") {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
-        
-        } else if(quality === "720") {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
-        } else {
-          video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "1080p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
+        const qualities = ["720", "360p", "1080p", "480p"];
+        let i = 0;
+        do {
+          video = await videoByQuality(videos, qualities[i]);
+          i++;
+        } while (!video && i < 4);
+
+        if (!video) {
+          return NextResponse.json({ success: false, message: "Finding quality failed!" })
         }
+    
     
         // const video360p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "360p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video480p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
