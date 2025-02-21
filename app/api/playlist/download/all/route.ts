@@ -20,9 +20,56 @@ const proxy = await getProxy();
 
 const allItems: string[] = [];
 
-async function downloadFile(url: string, path: string, type: "video" | "audio", isDownloaded: { video: boolean, audio: boolean }, audioOnly: boolean, videoId: string, allItems: string[]) {
+async function downloadFile(url: string, path: string, type: "video" | "audio", isDownloaded: { video: boolean, audio: boolean }, audioOnly: boolean, videoId: string, allItems: string[], hls: string, contentLength: string) {
+  console.log(videoId);
 
-  const response = await fetch(url, { agent: proxy ? proxy : undefined });
+  console.log("above the fetch for download");
+
+  const fetchVid = await fetch(`https://www.youtube.com/embed/${videoId}`, {
+    headers: {
+      'Host': 'm.youtube.com',
+      'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Accept-Language': 'en-us,en;q=0.5',
+      'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+      'Connection': 'Keep-Alive',
+      'X-Goog-Visitor-Id': 'CgtyeWhMd2o0WkxCTSjk7OC9BjIKCgJJUhIEGgAgWA%3D%3D',
+      'Cookie': 'SOCS=CAI; YSC=Vy698q5UWIs; __Secure-ROLLOUT_TOKEN=CMP8kqrf2fW6sgEQr4-jyLPUiwMY06q0o7TUiwM%3D; VISITOR_INFO1_LIVE=650LqHcyvYM; VISITOR_PRIVACY_METADATA=CgJJUhIEGgAgGQ%3D%3D'
+    }
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const vidText = await fetchVid.text();
+
+  const fetchHls = await fetch(hls, {
+    headers: {
+      'Host': 'manifest.googlevideo.com',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0',
+      'Connection': 'Keep-Alive',
+      'Accept-Language': 'fa-IR,en,*'
+    }
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const hlsText = await fetchHls.text();
+
+  // console.log(hlsText);
+
+  const host = new URL(url).host;
+console.log(`${url}&range=0-${contentLength}`);
+  const response = await fetch(`${url}&range=0-${contentLength}`, { headers: {
+    'Host': host,
+    'Origin': 'https://www.youtube.com',
+    'Referer': 'https://www.youtube.com',
+    'User-Agent': 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
+    'X-Goog-Visitor-Id': 'CgtyeWhMd2o0WkxCTSjk7OC9BjIKCgJJUhIEGgAgWA%3D%3D',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'fa-IR,en,*'
+  },
+  redirect: "follow",
+  agent: proxy ? proxy : undefined });
+
     if (!response.ok) throw new Error(`unexpected response ${response.statusText}`);
 
     const totalSize = Number(response.headers.get('content-length'));
@@ -59,7 +106,7 @@ async function downloadFile(url: string, path: string, type: "video" | "audio", 
         }
 
     });
-
+console.log("Above steream PIpe Li");
     await streamPipeline(response.body, createWriteStream(path));
 }
 
@@ -109,6 +156,7 @@ export async function GET(req: Request) {
     const quality = getQuality ? getQuality.quality : "480p";
 
     let isDownloaded = { video: false, audio: false };
+    console.log(isDownloaded);
 
         for (const plylst of playlists) {
 
@@ -211,8 +259,13 @@ export async function GET(req: Request) {
           
           const ytApiDataWithURL = await ytApiResponseWithUrl.json();
 
-          const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string, audioTrack: { audioIsDefault: boolean } }) => (item.mimeType.includes("audio") === true));
+          const hls = ytApiDataWithURL.streamingData.hlsManifestUrl;
 
+          // console.log(ytApiDataWithURL.streamingData.adaptiveFormats);
+          
+    console.log("Above audios");
+          const audios = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string, audioTrack: { audioIsDefault: boolean } }) => (item.mimeType.includes("audio") === true));
+          console.log("audios", audios);
           const originalAudio = audios.filter((item: { audioTrack: { audioIsDefault: boolean }}) => {
             if (item.audioTrack === undefined) {
               return false;
@@ -234,6 +287,7 @@ export async function GET(req: Request) {
             audioMedium = audioMedium[0]
           }
       
+          console.log("audio Mediym: ", audioMedium);
         const videos = ytApiDataWithURL.streamingData.adaptiveFormats.filter((item: { mimeType: string }) => item.mimeType.includes("video") === true);
      
         let video = await videoByQuality(videos, quality);
@@ -257,7 +311,7 @@ export async function GET(req: Request) {
         if (!video) {
           return NextResponse.json({ success: false, message: "Finding quality failed!" })
         }
-
+        
         // if (quality === "360p") {
         //   video = videoByQuality(videos, quality);
         // } else if(quality === "480p") {
@@ -279,11 +333,14 @@ export async function GET(req: Request) {
         //   video = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength))[0];
         // } 
 
+        console.log("VideoId", videoId);
+        console.log("Vidfeo: ", video);
         // const video360p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "360p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video480p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "480p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video720p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "720p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
         // const video1080p = (videos.filter((video: { qualityLabel: string, contentLength: string }) => video.qualityLabel === "1080p") || [{ contentLength: "1"}, { contentLength: "2"}]).sort((a: { contentLength: string }, b: { contentLength: string }) => parseInt(b?.contentLength) - parseInt(a?.contentLength));
-
+    
+    console.log("above thumb");
         let thumbnail = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
     
         const highQualityThumb = await fetch(thumbnail, { agent: proxy ? proxy : undefined });
@@ -315,17 +372,18 @@ export async function GET(req: Request) {
       isDownloaded = { video: false, audio: false };
 
       const thumbnailResponse = await fetch(thumbnail, { agent: proxy ? proxy : undefined });
-
+      console.log("Belove thumb path");
       const thumbnailPath = `./public/videos/${videoId}_thumbnail.jpg`;
       const thumbnailBuffer = await thumbnailResponse.buffer();
       await writeFile(thumbnailPath, thumbnailBuffer);
 
+      console.log(audioMedium.url);
 
       if (type === "audio") {
-        await downloadFile(audioMedium.url, `./public/videos/${videoId}_audio.webm`, "audio", isDownloaded, true, videoId, allItems);
+        await downloadFile(audioMedium.url, `./public/videos/${videoId}_audio.webm`, "audio", isDownloaded, true, videoId, allItems, hls, audioMedium.contentLength);
     } else {
-        await downloadFile(audioMedium.url, `./public/videos/${videoId}_audio.webm`, "audio", isDownloaded, false, videoId, allItems);
-        await downloadFile(video.url, `./public/videos/${videoId}.webm`, "video", isDownloaded, false, videoId, allItems);
+        await downloadFile(audioMedium.url, `./public/videos/${videoId}_audio.webm`, "audio", isDownloaded, false, videoId, allItems, hls, audioMedium.contentLength);
+        await downloadFile(video.url, `./public/videos/${videoId}.webm`, "video", isDownloaded, false, videoId, allItems, hls, video.contentLength);
     }
 
 
@@ -335,7 +393,7 @@ export async function GET(req: Request) {
                         clearInterval(interval);
     
                         await mergeAudio(videoId, fileName);
-
+    console.log("Above unlink");
                         await unlink(`./public/videos/${videoId}_audio.webm`);
                         await unlink(`./public/videos/${videoId}_thumbnail.jpg`);
 
@@ -356,9 +414,9 @@ export async function GET(req: Request) {
                         // if (videoId === allItems[allItems.length - 1]) {
                           clearInterval(interval);
                         // }
-
+console.log("Above merge");
                         await mergeAudioVideo(`./public/videos/${videoId}.webm`, `./public/videos/${videoId}_audio.webm`, `./public/videos/${videoId}_thumbnail.jpg` , `./public/videos/${fileName}.mp4`);
-                        
+    console.log("Above multi unlink");
                         await unlink(`./public/videos/${videoId}.webm`);
                         await unlink(`./public/videos/${videoId}_audio.webm`);
                         await unlink(`./public/videos/${videoId}_thumbnail.jpg`);
